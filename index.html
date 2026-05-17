@@ -6,17 +6,16 @@
   <title>XY's MileDiary</title>
   
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,300;0,400;0,600;1,400&family=Noto+Serif+SC:wght=300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,300;0,400;0,600;1,400&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
   
   <style>
-    /* --- 1. 核心视觉变量（法式轻奢奶油风色系） --- */
     :root {
       --bg-gradient: linear-gradient(135deg, #f4eee1 0%, #faf6ee 50%, #eae1d4 100%);
       --card-glass: rgba(255, 253, 249, 0.75);
-      --accent-gold: #c3a683;     /* 复古法式香槟金 */
-      --creamy-pink: #eab4b1;     /* 浅桃生椰粉 */
-      --text-primary: #4a4138;    /* 暖咖啡色 */
-      --text-muted: #8e8071;      /* 浅燕麦色辅助字 */
+      --accent-gold: #c3a683;
+      --creamy-pink: #eab4b1;
+      --text-primary: #4a4138;
+      --text-muted: #8e8071;
       --border-light: rgba(195, 166, 131, 0.25);
       --border-med: rgba(195, 166, 131, 0.5);
       --glass-filter: blur(20px) saturate(160%);
@@ -43,7 +42,6 @@
       z-index: 1; pointer-events: none;
     }
 
-    /* --- 2. 顶栏布局 --- */
     .topbar {
       position: fixed; top: 24px; left: 50%; transform: translateX(-50%); width: calc(100% - 48px); max-width: 1200px; height: 64px;
       background: var(--card-glass); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter);
@@ -63,7 +61,6 @@
       border-color: var(--border-med); color: #fff; background: linear-gradient(135deg, var(--accent-gold) 0%, #b39571 100%); box-shadow: 0 4px 12px rgba(195, 166, 131, 0.25);
     }
 
-    /* --- 3. 地图框架 --- */
     .map-wrapper {
       position: absolute; inset: 0; z-index: 10; padding: 100px 40px 120px 40px; display: flex; justify-content: center; align-items: center;
     }
@@ -72,36 +69,90 @@
     }
     #map { width: 100%; height: 100%; background: #f7f3ec; }
 
-    /* =========================================================================
-       ✨ 彻底重构：法式轻奢珍珠微光标记样式 (解决密集恐惧、重合粘连问题)
-       ========================================================================= */
+    /* ── 单次打卡：珍珠点 ── */
     .creamy-marker-container {
       background: transparent; border: none; width: 24px !important; height: 24px !important;
       display: flex; align-items: center; justify-content: center;
     }
-    /* 极细微光核心：珍珠点 */
     .pearl-dot {
       width: 10px; height: 10px; background: #ffffff; border: 2.5px solid var(--accent-gold); border-radius: 50%;
       position: relative; box-shadow: 0 2px 6px rgba(142, 128, 113, 0.3);
       transition: all 0.3s var(--ease-apple); cursor: pointer;
     }
-    /* 周围淡淡的香槟金呼吸晕染 */
     .pearl-dot::before {
       content: ''; position: absolute; inset: -6px; border-radius: 50%;
       background: rgba(195, 166, 131, 0.12); animation: pearlBreath 3s infinite ease-in-out; pointer-events: none;
     }
-    /* 悬浮交互：荡开温润的浅桃粉涟漪 */
     .pearl-dot:hover {
       transform: scale(1.3); border-color: #e0928e; background: #fff;
       box-shadow: 0 0 12px rgba(234, 180, 177, 0.8);
     }
-    
     @keyframes pearlBreath {
       0%, 100% { transform: scale(0.9); opacity: 0.4; }
       50% { transform: scale(1.2); opacity: 1; }
     }
 
-    /* --- 4. 底部数据统计药丸 --- */
+    /* ── 多次打卡：数字徽章 ── */
+    .multi-marker-container {
+      background: transparent; border: none;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .multi-badge {
+      position: relative; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--accent-gold) 0%, #b39571 100%);
+      border: 2px solid rgba(255,255,255,0.8);
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      box-shadow: 0 3px 10px rgba(195, 166, 131, 0.45);
+      transition: all 0.3s var(--ease-apple);
+      font-family: var(--font-serif); font-size: 12px; font-weight: 700; color: #fff;
+      letter-spacing: 0;
+    }
+    .multi-badge::before {
+      content: ''; position: absolute; inset: -7px; border-radius: 50%;
+      background: rgba(195, 166, 131, 0.15); animation: pearlBreath 2.5s infinite ease-in-out; pointer-events: none;
+    }
+    .multi-badge:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 16px rgba(234, 180, 177, 0.8);
+      border-color: var(--creamy-pink);
+    }
+
+    /* ── 城市记录列表弹层 ── */
+    .city-popup {
+      position: fixed; inset: 0; z-index: 1100; display: none;
+      align-items: center; justify-content: center;
+      background: rgba(74, 65, 56, 0.18); backdrop-filter: blur(12px);
+      padding: 20px;
+    }
+    .city-popup.open { display: flex; }
+    .city-popup-inner {
+      background: rgba(255, 254, 252, 0.97); border: 1px solid var(--border-light);
+      border-radius: 24px; padding: 32px; width: 100%; max-width: 480px;
+      box-shadow: 0 24px 60px rgba(142, 128, 113, 0.2); position: relative;
+      max-height: 80vh; display: flex; flex-direction: column;
+    }
+    .city-popup-title {
+      font-family: var(--font-serif); font-size: 20px; color: var(--text-primary);
+      margin-bottom: 6px; font-weight: 400;
+    }
+    .city-popup-subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+    .city-trip-list { overflow-y: auto; flex: 1; }
+    .city-trip-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; background: rgba(255,255,255,0.7);
+      border: 1px solid var(--border-light); border-radius: 14px; margin-bottom: 10px;
+      cursor: pointer; transition: all 0.25s var(--ease-apple);
+    }
+    .city-trip-row:hover { transform: translateX(4px); background: rgba(255,255,255,0.95); border-color: var(--border-med); }
+    .city-trip-info .trip-num { font-size: 11px; color: var(--accent-gold); font-weight: 600; margin-bottom: 2px; }
+    .city-trip-info .trip-dates { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+    .city-trip-info .trip-hotel { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .city-trip-arrow { color: var(--text-muted); font-size: 16px; }
+    .city-popup-close { position: absolute; top: 16px; right: 20px; background: none; border: none; font-size: 22px; color: var(--text-muted); cursor: pointer; }
+
+    /* ── 底部统计 ── */
     .stats-pill {
       position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
       background: var(--card-glass); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter);
@@ -111,9 +162,12 @@
     .stat-label { font-size: 11px; color: var(--text-muted); letter-spacing: 1.5px; margin-bottom: 4px; font-weight: 500; }
     .stat-val { font-family: var(--font-serif); font-size: 20px; color: var(--text-primary); font-weight: 600; }
 
-    /* --- 5. 侧边面板 --- */
+    /* ── 侧边面板 ── */
     .side-panel {
-      position: fixed; top: 0; right: 0; width: 400px; height: 100vh; background: rgba(253, 251, 247, 0.85); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); border-left: 1px solid var(--border-light); z-index: 950; transform: translateX(100%); transition: transform 0.6s var(--ease-apple); padding: 100px 32px 40px 32px; display: flex; flex-direction: column;
+      position: fixed; top: 0; right: 0; width: 400px; height: 100vh;
+      background: rgba(253, 251, 247, 0.85); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter);
+      border-left: 1px solid var(--border-light); z-index: 950; transform: translateX(100%);
+      transition: transform 0.6s var(--ease-apple); padding: 100px 32px 40px 32px; display: flex; flex-direction: column;
     }
     .side-panel.open { transform: translateX(0); box-shadow: -15px 0 40px rgba(163, 145, 126, 0.1); }
     .panel-title { font-family: var(--font-serif); font-size: 22px; color: var(--text-primary); font-weight: 400; margin-bottom: 32px; letter-spacing: 1px; }
@@ -138,7 +192,7 @@
     .wish-text.done { color: var(--text-muted); text-decoration: line-through; opacity: 0.5; }
     .wish-cb { width: 18px; height: 18px; accent-color: var(--accent-gold); cursor: pointer; }
 
-    /* --- 6. 双栏弹窗 --- */
+    /* ── 主弹窗 ── */
     .modal {
       display: none; position: fixed; inset: 0; background: rgba(74, 65, 56, 0.2); backdrop-filter: blur(15px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
     }
@@ -169,6 +223,36 @@
     }
 
     .btn-action { background: linear-gradient(135deg, var(--accent-gold) 0%, #b39571 100%); color: #ffffff; border: none; padding: 14px 24px; border-radius: 24px; font-weight: 600; font-size: 13px; cursor: pointer; width: 100%; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(195, 166, 131, 0.3); }
+
+    /* ── AI 票据解析区域 ── */
+    .ai-scan-box {
+      background: rgba(195, 166, 131, 0.05); border: 1px dashed var(--border-med);
+      padding: 14px; margin-bottom: 16px; position: relative; border-radius: 12px;
+    }
+    .ai-scan-header { display: flex; align-items: center; justify-content: space-between; }
+    .ai-scan-title { font-size: 12px; color: var(--text-primary); font-weight: 600; }
+    .ai-scan-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .ai-loading-overlay {
+      position: absolute; inset: 0; background: rgba(250,246,238,0.95);
+      display: none; align-items: center; justify-content: center;
+      border-radius: 12px; flex-direction: column; gap: 8px;
+    }
+    .ai-loading-overlay.show { display: flex; }
+    .ai-loading-text { font-size: 11px; color: var(--accent-gold); font-family: var(--font-serif); letter-spacing: 1.5px; font-weight: 600; }
+    .ai-dots { display: flex; gap: 4px; }
+    .ai-dot { width: 5px; height: 5px; background: var(--accent-gold); border-radius: 50%; animation: aiBounce 1.2s infinite ease-in-out; }
+    .ai-dot:nth-child(2) { animation-delay: 0.2s; }
+    .ai-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes aiBounce { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+
+    /* 解析结果预览条 */
+    .ai-result-preview {
+      margin-top: 10px; padding: 10px 12px; background: rgba(195,166,131,0.08);
+      border-radius: 8px; font-size: 11px; color: var(--text-muted); display: none;
+      border-left: 2px solid var(--accent-gold); line-height: 1.6;
+    }
+    .ai-result-preview.show { display: block; }
+    .ai-result-preview strong { color: var(--text-primary); }
 
     .apple-alert {
       position: fixed; top: 104px; left: 50%; transform: translateX(-50%) translateY(-20px); background: linear-gradient(135deg, var(--accent-gold) 0%, #b39571 100%); color: #fff; padding: 10px 28px; border-radius: 20px; font-size: 12px; font-weight: 500; letter-spacing: 0.5px; z-index: 850; pointer-events: none; opacity: 0; transition: all 0.4s var(--ease-apple); box-shadow: 0 10px 25px rgba(195,166,131,0.2);
@@ -228,6 +312,16 @@
     </div>
   </div>
 
+  <!-- 城市多次记录弹层 -->
+  <div class="city-popup" id="city-popup">
+    <div class="city-popup-inner">
+      <button class="city-popup-close" onclick="closeCityPopup()">×</button>
+      <div class="city-popup-title" id="city-popup-name"></div>
+      <div class="city-popup-subtitle" id="city-popup-sub"></div>
+      <div class="city-trip-list" id="city-trip-list"></div>
+    </div>
+  </div>
+
   <div class="modal" id="main-modal">
     <div class="modal-content">
       <button class="modal-close-btn" onclick="closeModal()">×</button>
@@ -235,16 +329,21 @@
       <div class="modal-left">
         <h3 style="font-family: var(--font-serif); font-size: 18px; color: var(--text-primary); margin-bottom: 20px; font-weight: 400;">封存新映像</h3>
         
-        <div style="background: rgba(195, 166, 131, 0.05); border: 1px dashed var(--border-med); padding: 14px; margin-bottom: 16px; position: relative; border-radius: 12px;">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
+        <!-- AI 票据识别区 -->
+        <div class="ai-scan-box">
+          <div class="ai-scan-header">
             <div>
-              <div style="font-size: 12px; color: var(--text-primary); font-weight:600;">AI 票据智能校准</div>
-              <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">解析截图并自动填报开销与明细</div>
+              <div class="ai-scan-title">🤖 AI 票据智能解析</div>
+              <div class="ai-scan-sub">上传消费截图，Claude 自动识别并填写行程信息</div>
             </div>
-            <button type="button" class="nav-btn active" style="font-size: 11px; padding: 4px 12px;" onclick="document.getElementById('ai-file').click()">导入凭证</button>
+            <button type="button" class="nav-btn active" style="font-size: 11px; padding: 4px 12px; white-space:nowrap;" onclick="document.getElementById('ai-file').click()">导入凭证</button>
           </div>
-          <input type="file" id="ai-file" accept="image/*" style="display:none;" onchange="simulateAIScan()">
-          <div id="ai-loading" style="position: absolute; inset: 0; background: #faf6ee; display: none; align-items: center; justify-content: center; font-size: 11px; color: var(--accent-gold); font-family: var(--font-serif); letter-spacing: 1px; font-weight:600;">PARSING BILL STRUCTURE...</div>
+          <input type="file" id="ai-file" accept="image/*" style="display:none;" onchange="runAIScan(event)">
+          <div id="ai-result-preview" class="ai-result-preview"></div>
+          <div class="ai-loading-overlay" id="ai-loading">
+            <div class="ai-dots"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>
+            <div class="ai-loading-text">CLAUDE PARSING...</div>
+          </div>
         </div>
 
         <form id="trip-form" onsubmit="saveTripData(event)">
@@ -276,8 +375,8 @@
           
           <div class="form-group" style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
             <div>
-              <label class="form-label">🏨 浪漫下榻 (酒店/民宿)</label>
-              <input type="text" id="field-hotel" class="form-input" placeholder="例如：阿凯萨公馆">
+              <label class="form-label">🏨 浪漫下榻</label>
+              <input type="text" id="field-hotel" class="form-input" placeholder="酒店/民宿名称">
             </div>
             <div>
               <label class="form-label">推荐指数</label>
@@ -291,8 +390,8 @@
 
       <div class="modal-right">
         <div class="form-group">
-          <label class="form-label">🍽️ 舌尖记忆 (品尝过的难忘美食)</label>
-          <input type="text" id="field-food-spots" class="form-input" placeholder="例如：野生菌火锅、喜洲粑粑 (用逗号隔开)">
+          <label class="form-label">🍽️ 舌尖记忆</label>
+          <input type="text" id="field-food-spots" class="form-input" placeholder="例如：野生菌火锅、喜洲粑粑 (逗号隔开)">
         </div>
 
         <div class="form-group">
@@ -303,7 +402,10 @@
             <div class="exp-box"><div class="exp-label">餐饮</div><input type="number" id="exp-food" class="exp-input" value="0"></div>
             <div class="exp-box"><div class="exp-label">游玩</div><input type="number" id="exp-play" class="exp-input" value="0"></div>
             <div class="exp-box"><div class="exp-label">其他</div><input type="number" id="exp-other" class="exp-input" value="0"></div>
-            <div class="exp-box" style="background: rgba(195,166,131,0.1); border-color: var(--border-med);"><div class="exp-label" style="color:var(--text-primary); font-weight:600;">总额</div><div id="exp-total-display" style="font-family:var(--font-serif); font-size:15px; color:var(--text-primary); margin-top:2px; font-weight:600;">0</div></div>
+            <div class="exp-box" style="background: rgba(195,166,131,0.1); border-color: var(--border-med);">
+              <div class="exp-label" style="color:var(--text-primary); font-weight:600;">总额</div>
+              <div id="exp-total-display" style="font-family:var(--font-serif); font-size:15px; color:var(--text-primary); margin-top:2px; font-weight:600;">0</div>
+            </div>
           </div>
         </div>
 
@@ -336,7 +438,7 @@
     let mapEngine;
     let mapMarkers = [];
     let currentActivePanel = null;
-    let isAdd足迹Mode = false;
+    let isAddMode = false;
     let currentUploadedPhotos = [];
 
     window.onload = function() {
@@ -344,6 +446,7 @@
       initVisualMap();
       calculateDashboardStats();
       setupExpenseListener();
+      renderPhotoPreviews();
     };
 
     function loadStorageData() {
@@ -366,65 +469,113 @@
     function initVisualMap() {
       mapEngine = L.map('map', { zoomControl: false, attributionControl: false }).setView([12.00, 108.00], 4);
       L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(mapEngine);
-
       mapEngine.on('click', function(e) {
-        if (!isAdd足迹Mode) return;
+        if (!isAddMode) return;
         openCreateModalFromMap(e.latlng.lat, e.latlng.lng);
       });
       renderVisualMarkers();
     }
 
-    /* =========================================================================
-       ✨ 核心修改：以极致精细的珍珠圆点渲染打卡坐标，告别重合色块
-       ========================================================================= */
+    /* ── 按城市聚合，同城多次显示数字徽章 ── */
     function renderVisualMarkers() {
       mapMarkers.forEach(m => mapEngine.removeLayer(m));
       mapMarkers = [];
 
+      // 按 place 聚合（忽略大小写和首尾空格）
+      const cityMap = {};
       globalTrips.forEach(trip => {
         if (!trip.lat || !trip.lng) return;
-        
-        // 珍珠质感小圆点组件结构
-        const customIcon = L.divIcon({
-          className: 'creamy-marker-container',
-          html: `<div class="pearl-dot" onclick="openDetailView('${trip.id}')"></div>`,
-          iconSize: [24, 24],
-          iconAnchor: [12, 12]
-        });
-        
-        const marker = L.marker([trip.lat, trip.lng], { icon: customIcon }).addTo(mapEngine);
-        mapMarkers.push(marker);
+        const key = trip.place.trim().toLowerCase();
+        if (!cityMap[key]) cityMap[key] = [];
+        cityMap[key].push(trip);
+      });
+
+      Object.values(cityMap).forEach(trips => {
+        const rep = trips[0]; // 代表坐标取第一条
+        const count = trips.length;
+
+        if (count === 1) {
+          // 单次 → 珍珠圆点
+          const icon = L.divIcon({
+            className: 'creamy-marker-container',
+            html: `<div class="pearl-dot" onclick="openDetailView('${rep.id}')"></div>`,
+            iconSize: [24, 24], iconAnchor: [12, 12]
+          });
+          const m = L.marker([rep.lat, rep.lng], { icon }).addTo(mapEngine);
+          mapMarkers.push(m);
+        } else {
+          // 多次 → 数字徽章，点击展开城市列表
+          const cityKey = encodeURIComponent(rep.place.trim().toLowerCase());
+          const icon = L.divIcon({
+            className: 'multi-marker-container',
+            html: `<div class="multi-badge" onclick="openCityPopup('${cityKey}')">${count}</div>`,
+            iconSize: [28, 28], iconAnchor: [14, 14]
+          });
+          const m = L.marker([rep.lat, rep.lng], { icon }).addTo(mapEngine);
+          mapMarkers.push(m);
+        }
       });
     }
 
+    /* ── 城市多次记录弹层 ── */
+    function openCityPopup(cityKeyEncoded) {
+      const cityKey = decodeURIComponent(cityKeyEncoded);
+      const trips = globalTrips.filter(t => t.place.trim().toLowerCase() === cityKey);
+      if (!trips.length) return;
+      
+      const cityName = trips[0].place;
+      document.getElementById('city-popup-name').textContent = cityName;
+      document.getElementById('city-popup-sub').textContent = `共 ${trips.length} 次到访 · 点击查看详情`;
+
+      const list = document.getElementById('city-trip-list');
+      list.innerHTML = '';
+      const sorted = [...trips].sort((a,b) => new Date(b.startDate) - new Date(a.startDate));
+      sorted.forEach((t, i) => {
+        const row = document.createElement('div');
+        row.className = 'city-trip-row';
+        row.onclick = () => { closeCityPopup(); openDetailView(t.id); };
+        row.innerHTML = `
+          <div class="city-trip-info">
+            <div class="trip-num">第 ${sorted.length - i} 次到访</div>
+            <div class="trip-dates">${t.startDate}  →  ${t.endDate || '—'}</div>
+            <div class="trip-hotel">${t.hotel ? '🏨 ' + t.hotel : '未记录住宿'}</div>
+          </div>
+          <div class="city-trip-arrow">›</div>
+        `;
+        list.appendChild(row);
+      });
+
+      document.getElementById('city-popup').classList.add('open');
+    }
+
+    function closeCityPopup() {
+      document.getElementById('city-popup').classList.remove('open');
+    }
+
+    /* ── 统计 ── */
     function calculateDashboardStats() {
       document.getElementById('stat-trips').innerText = globalTrips.length;
-      const uniqueCities = new Set(globalTrips.map(t => t.place.trim()));
+      const uniqueCities = new Set(globalTrips.map(t => t.place.trim().toLowerCase()));
       document.getElementById('stat-cities').innerText = uniqueCities.size;
-
       let grandTotal = 0;
-      globalTrips.forEach(t => {
-        if (t.expenses && t.expenses.total) grandTotal += parseFloat(t.expenses.total);
-      });
+      globalTrips.forEach(t => { if (t.expenses && t.expenses.total) grandTotal += parseFloat(t.expenses.total); });
       document.getElementById('stat-budget').innerText = '¥' + grandTotal.toLocaleString();
     }
 
+    /* ── 侧边面板 ── */
     function togglePanel(type) {
       const panel = document.getElementById('side-panel');
-      const btnTimeline = document.getElementById('btn-timeline');
-      const btnWish = document.getElementById('btn-wish');
-
       if (currentActivePanel === type) {
         panel.classList.remove('open');
-        btnTimeline.classList.remove('active');
-        btnWish.classList.remove('active');
+        document.getElementById('btn-timeline').classList.remove('active');
+        document.getElementById('btn-wish').classList.remove('active');
         currentActivePanel = null;
       } else {
         panel.classList.add('open');
         document.getElementById('panel-content-timeline').style.display = type === 'timeline' ? 'flex' : 'none';
         document.getElementById('panel-content-wish').style.display = type === 'wish' ? 'flex' : 'none';
-        btnTimeline.classList.toggle('active', type === 'timeline');
-        btnWish.classList.toggle('active', type === 'wish');
+        document.getElementById('btn-timeline').classList.toggle('active', type === 'timeline');
+        document.getElementById('btn-wish').classList.toggle('active', type === 'wish');
         currentActivePanel = type;
         if (type === 'timeline') renderTimeline();
         if (type === 'wish') renderWishes();
@@ -435,18 +586,12 @@
       const container = document.getElementById('timeline-list');
       container.innerHTML = '';
       const sorted = [...globalTrips].sort((a,b) => new Date(b.startDate) - new Date(a.startDate));
-      if(sorted.length === 0) {
-        container.innerHTML = `<div style="color:var(--text-muted); font-size:12px; font-style:italic;">暂无脚印...</div>`;
-        return;
-      }
+      if(!sorted.length) { container.innerHTML = `<div style="color:var(--text-muted);font-size:12px;font-style:italic;">暂无脚印...</div>`; return; }
       sorted.forEach(t => {
         const item = document.createElement('div');
         item.className = 'timeline-item';
         item.onclick = () => openDetailView(t.id);
-        item.innerHTML = `
-          <div class="tl-date">${t.startDate}</div>
-          <div class="tl-name">${t.place}</div>
-        `;
+        item.innerHTML = `<div class="tl-date">${t.startDate}</div><div class="tl-name">${t.place}</div>`;
         container.appendChild(item);
       });
     }
@@ -454,17 +599,11 @@
     function renderWishes() {
       const container = document.getElementById('wish-container');
       container.innerHTML = '';
-      if(globalWishes.length === 0) {
-        container.innerHTML = `<div style="color:var(--text-muted); font-size:12px; font-style:italic;">还没有写下心愿清单哦...</div>`;
-        return;
-      }
+      if(!globalWishes.length) { container.innerHTML = `<div style="color:var(--text-muted);font-size:12px;font-style:italic;">还没有写下心愿清单哦...</div>`; return; }
       globalWishes.forEach(w => {
         const item = document.createElement('div');
         item.className = 'wish-item';
-        item.innerHTML = `
-          <span class="wish-text ${w.done ? 'done' : ''}">${w.name}</span>
-          <input type="checkbox" class="wish-cb" ${w.done ? 'checked' : ''} onchange="toggleWishStatus('${w.id}', this.checked)">
-        `;
+        item.innerHTML = `<span class="wish-text ${w.done ? 'done' : ''}">${w.name}</span><input type="checkbox" class="wish-cb" ${w.done ? 'checked' : ''} onchange="toggleWishStatus('${w.id}', this.checked)">`;
         container.appendChild(item);
       });
     }
@@ -483,15 +622,13 @@
       if(wish) { wish.done = isChecked; saveWishesState(); }
     }
 
+    /* ── 打卡模式 ── */
     function toggleAddMode() {
-      isAdd足迹Mode = !isAdd足迹Mode;
+      isAddMode = !isAddMode;
       const btn = document.getElementById('btn-mode-add');
       const alertBar = document.getElementById('mode-alert');
-      if(isAdd足迹Mode) {
-        btn.classList.add('active'); alertBar.classList.add('show');
-      } else {
-        btn.classList.remove('active'); alertBar.classList.remove('show');
-      }
+      btn.classList.toggle('active', isAddMode);
+      alertBar.classList.toggle('show', isAddMode);
     }
 
     function openCreateModalFromMap(lat, lng) {
@@ -502,17 +639,18 @@
       document.getElementById('field-hotel').value = '';
       document.getElementById('field-hotel-rating').value = '';
       document.getElementById('field-food-spots').value = '';
+      document.getElementById('field-note').value = '';
+      document.getElementById('ai-result-preview').classList.remove('show');
       currentUploadedPhotos = [];
       renderPhotoPreviews();
       resetExpensesField();
-      toggleAddMode();
+      if (isAddMode) toggleAddMode();
       document.getElementById('main-modal').classList.add('open');
     }
 
     function openDetailView(id) {
       const trip = globalTrips.find(t => t.id === id);
       if(!trip) return;
-
       document.getElementById('field-id').value = trip.id;
       document.getElementById('field-place').value = trip.place;
       document.getElementById('field-start').value = trip.startDate;
@@ -520,11 +658,9 @@
       document.getElementById('field-lat').value = trip.lat;
       document.getElementById('field-lng').value = trip.lng;
       document.getElementById('field-note').value = trip.note || '';
-      
       document.getElementById('field-hotel').value = trip.hotel || '';
       document.getElementById('field-hotel-rating').value = trip.hotelRating || '';
       document.getElementById('field-food-spots').value = trip.foodSpots || '';
-
       const exp = trip.expenses || {};
       document.getElementById('exp-transport').value = exp.transport || 0;
       document.getElementById('exp-stay').value = exp.stay || 0;
@@ -532,7 +668,7 @@
       document.getElementById('exp-play').value = exp.play || 0;
       document.getElementById('exp-other').value = exp.other || 0;
       updateExpenseTotal();
-
+      document.getElementById('ai-result-preview').classList.remove('show');
       currentUploadedPhotos = trip.photos || [];
       renderPhotoPreviews();
       document.getElementById('main-modal').classList.add('open');
@@ -549,32 +685,22 @@
       const lat = parseFloat(document.getElementById('field-lat').value);
       const lng = parseFloat(document.getElementById('field-lng').value);
       const note = document.getElementById('field-note').value;
-      
       const hotel = document.getElementById('field-hotel').value.trim();
       const hotelRating = document.getElementById('field-hotel-rating').value.trim();
       const foodSpots = document.getElementById('field-food-spots').value.trim();
-
       const transport = parseFloat(document.getElementById('exp-transport').value) || 0;
       const stay = parseFloat(document.getElementById('exp-stay').value) || 0;
       const food = parseFloat(document.getElementById('exp-food').value) || 0;
       const play = parseFloat(document.getElementById('exp-play').value) || 0;
       const other = parseFloat(document.getElementById('exp-other').value) || 0;
       const total = transport + stay + food + play + other;
-
       const expenseObj = { total, transport, stay, food, play, other };
 
       if(id) {
         const idx = globalTrips.findIndex(t => t.id === id);
-        if(idx !== -1) {
-          globalTrips[idx] = { 
-            ...globalTrips[idx], place, startDate, endDate, lat, lng, note, hotel, hotelRating, foodSpots, expenses: expenseObj, photos: currentUploadedPhotos 
-          };
-        }
+        if(idx !== -1) globalTrips[idx] = { ...globalTrips[idx], place, startDate, endDate, lat, lng, note, hotel, hotelRating, foodSpots, expenses: expenseObj, photos: currentUploadedPhotos };
       } else {
-        const newTrip = { 
-          id: 't_' + Date.now(), place, startDate, endDate, lat, lng, note, hotel, hotelRating, foodSpots, expenses: expenseObj, photos: currentUploadedPhotos 
-        };
-        globalTrips.unshift(newTrip);
+        globalTrips.unshift({ id: 't_' + Date.now(), place, startDate, endDate, lat, lng, note, hotel, hotelRating, foodSpots, expenses: expenseObj, photos: currentUploadedPhotos });
         mapEngine.panTo([lat, lng]);
       }
       saveTripsState();
@@ -585,7 +711,7 @@
       const place = document.getElementById('field-place').value.trim();
       if(!place) return;
       fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(place)}&limit=1`)
-        .then(res => res.json())
+        .then(r => r.json())
         .then(data => {
           if(data && data.length > 0) {
             document.getElementById('field-lat').value = parseFloat(data[0].lat).toFixed(6);
@@ -594,6 +720,106 @@
         });
     }
 
+    /* ══════════════════════════════════════════════════════════════
+       ✨ 真实 AI 票据解析：调用 Claude API 识别图片内容
+       ══════════════════════════════════════════════════════════════ */
+    async function runAIScan(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const loading = document.getElementById('ai-loading');
+      const preview = document.getElementById('ai-result-preview');
+      loading.classList.add('show');
+      preview.classList.remove('show');
+
+      // 读取图片为 base64
+      const base64 = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(',')[1]);
+        r.onerror = () => rej(new Error('读取失败'));
+        r.readAsDataURL(file);
+      });
+
+      const mediaType = file.type || 'image/jpeg';
+
+      const prompt = `你是一个旅行票据解析助手。请仔细阅读这张图片（可能是电子订单截图、收据、酒店确认函、机票/火车票、餐厅小票等）。
+
+请从图片中提取以下字段，若无法确定则填 null。
+严格以 JSON 格式返回，不要输出任何其他文字：
+{
+  "place": "目的地城市或景点名称（中文）",
+  "startDate": "出发/入住日期 YYYY-MM-DD",
+  "endDate": "返回/退房日期 YYYY-MM-DD",
+  "hotel": "酒店或住宿名称",
+  "foodSpots": "如有餐厅或美食信息，以逗号分隔",
+  "transport": 交通费用数字（人民币，无则0）,
+  "stay": 住宿费用数字（人民币，无则0）,
+  "food": 餐饮费用数字（人民币，无则0）,
+  "play": 游玩/景区费用数字（人民币，无则0）,
+  "other": 其他费用数字（人民币，无则0）,
+  "note": "任何有价值的补充备注（如订单号、特别安排等，不超过50字）"
+}`;
+
+      try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            messages: [{
+              role: 'user',
+              content: [
+                { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+                { type: 'text', text: prompt }
+              ]
+            }]
+          })
+        });
+
+        const data = await response.json();
+        const rawText = (data.content || []).map(b => b.text || '').join('');
+        
+        // 提取 JSON（去掉 markdown 围栏）
+        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('未能解析 JSON');
+        const parsed = JSON.parse(jsonMatch[0]);
+
+        // 填入表单
+        if (parsed.place) { document.getElementById('field-place').value = parsed.place; geoLookup(); }
+        if (parsed.startDate) document.getElementById('field-start').value = parsed.startDate;
+        if (parsed.endDate) document.getElementById('field-end').value = parsed.endDate;
+        if (parsed.hotel) document.getElementById('field-hotel').value = parsed.hotel;
+        if (parsed.foodSpots) document.getElementById('field-food-spots').value = parsed.foodSpots;
+        if (parsed.note) document.getElementById('field-note').value = parsed.note;
+        if (parsed.transport) document.getElementById('exp-transport').value = parsed.transport;
+        if (parsed.stay) document.getElementById('exp-stay').value = parsed.stay;
+        if (parsed.food) document.getElementById('exp-food').value = parsed.food;
+        if (parsed.play) document.getElementById('exp-play').value = parsed.play;
+        if (parsed.other) document.getElementById('exp-other').value = parsed.other;
+        updateExpenseTotal();
+
+        // 摘要预览
+        const total = (parsed.transport||0)+(parsed.stay||0)+(parsed.food||0)+(parsed.play||0)+(parsed.other||0);
+        const summaryParts = [];
+        if (parsed.place) summaryParts.push(`<strong>📍 ${parsed.place}</strong>`);
+        if (parsed.startDate) summaryParts.push(`${parsed.startDate}${parsed.endDate ? ' → '+parsed.endDate : ''}`);
+        if (parsed.hotel) summaryParts.push(`🏨 ${parsed.hotel}`);
+        if (total > 0) summaryParts.push(`💰 ¥${total.toLocaleString()}`);
+        preview.innerHTML = summaryParts.join(' &nbsp;·&nbsp; ') + '<br><span style="color:#c8a58c;font-style:italic;">✓ 已自动填写，可手动校正</span>';
+        preview.classList.add('show');
+
+      } catch (err) {
+        preview.innerHTML = `<span style="color:#c0776a;">⚠ 解析失败：${err.message}。请手动填写或换一张更清晰的截图。</span>`;
+        preview.classList.add('show');
+      } finally {
+        loading.classList.remove('show');
+        // 重置 input 以便重复上传同一文件
+        event.target.value = '';
+      }
+    }
+
+    /* ── 图片上传 ── */
     function handlePhotoUpload(event) {
       const files = event.target.files;
       if(!files || files.length === 0) return;
@@ -605,55 +831,35 @@
     function renderPhotoPreviews() {
       const previewBox = document.getElementById('photo-preview-box');
       const heroArea = document.getElementById('view-hero-area');
+      if (!previewBox || !heroArea) return;
       previewBox.innerHTML = '';
-
       if(currentUploadedPhotos.length > 0) {
         heroArea.innerHTML = `<img src="${currentUploadedPhotos[0]}" style="width:100%; height:160px; object-fit:cover; border-radius:16px; margin-bottom:20px; border:1px solid var(--border-light);">`;
-        currentUploadedPhotos.forEach((imgSrc) => {
+        currentUploadedPhotos.forEach(imgSrc => {
           const img = document.createElement('img'); img.className = 'photo-thumb'; img.src = imgSrc;
           img.onclick = () => { heroArea.innerHTML = `<img src="${imgSrc}" style="width:100%; height:160px; object-fit:cover; border-radius:16px; margin-bottom:20px; border:1px solid var(--border-light);">`; };
           previewBox.appendChild(img);
         });
       } else {
-        heroArea.innerHTML = `
-          <div class="view-hero-placeholder">
-             <span style="font-family: var(--font-serif); font-size: 11px; color: var(--text-muted); letter-spacing: 3px; font-weight: 400;">CREAMY MEMORY</span>
-             <span style="width: 20px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent-gold), transparent); margin-top: 8px;"></span>
-          </div>`;
+        heroArea.innerHTML = `<div class="view-hero-placeholder"><span style="font-family:var(--font-serif);font-size:11px;color:var(--text-muted);letter-spacing:3px;font-weight:400;">CREAMY MEMORY</span><span style="width:20px;height:1px;background:linear-gradient(90deg,transparent,var(--accent-gold),transparent);margin-top:8px;"></span></div>`;
       }
     }
 
+    /* ── 消费计算 ── */
     function setupExpenseListener() {
-      ['exp-transport', 'exp-stay', 'exp-food', 'exp-play', 'exp-other'].forEach(id => { document.getElementById(id).addEventListener('input', updateExpenseTotal); });
+      ['exp-transport','exp-stay','exp-food','exp-play','exp-other'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updateExpenseTotal);
+      });
     }
 
     function updateExpenseTotal() {
-      const transport = parseFloat(document.getElementById('exp-transport').value) || 0;
-      const stay = parseFloat(document.getElementById('exp-stay').value) || 0;
-      const food = parseFloat(document.getElementById('exp-food').value) || 0;
-      const play = parseFloat(document.getElementById('exp-play').value) || 0;
-      const other = parseFloat(document.getElementById('exp-other').value) || 0;
-      document.getElementById('exp-total-display').innerText = (transport + stay + food + play + other).toFixed(0);
+      const t = ['exp-transport','exp-stay','exp-food','exp-play','exp-other'].reduce((s,id) => s + (parseFloat(document.getElementById(id).value)||0), 0);
+      document.getElementById('exp-total-display').innerText = t.toFixed(0);
     }
 
     function resetExpensesField() {
-      ['exp-transport', 'exp-stay', 'exp-food', 'exp-play', 'exp-other'].forEach(id => { document.getElementById(id).value = 0; });
+      ['exp-transport','exp-stay','exp-food','exp-play','exp-other'].forEach(id => { document.getElementById(id).value = 0; });
       document.getElementById('exp-total-display').innerText = '0';
-    }
-
-    function simulateAIScan() {
-      const loader = document.getElementById('ai-loading'); loader.style.display = 'flex';
-      setTimeout(() => {
-        loader.style.display = 'none';
-        document.getElementById('field-place').value = '新加坡';
-        document.getElementById('field-start').value = '2026-05-15';
-        document.getElementById('field-end').value = '2026-05-18';
-        document.getElementById('field-hotel').value = '滨海湾金沙酒店';
-        document.getElementById('field-hotel-rating').value = '💖 5星推荐';
-        document.getElementById('field-food-spots').value = '天天海南鸡饭、松发肉骨茶';
-        document.getElementById('exp-transport').value = 2400; document.getElementById('exp-stay').value = 4500; document.getElementById('exp-food').value = 1200;
-        updateExpenseTotal(); geoLookup();
-      }, 1200);
     }
   </script>
 </body>

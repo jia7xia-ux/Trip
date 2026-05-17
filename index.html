@@ -42,149 +42,55 @@ html, body {
   overflow: hidden;
 }
 
-/* ─── MAP FULL SCREEN ─── */
 #map {
   position: fixed; inset: 0;
   z-index: 0;
   cursor: crosshair;
 }
-/* Override Leaflet default cursor when not in add mode */
 #map.browse-mode { cursor: grab; }
 #map.browse-mode:active { cursor: grabbing; }
-
-/* Leaflet tile style: soft warm filter */
 .leaflet-tile { filter: saturate(0.7) brightness(1.04) sepia(0.08); }
 
-/* ─── TOP BAR ─── */
 .topbar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 800;
-  height: 60px;
-  background: var(--glass);
-  backdrop-filter: blur(18px) saturate(1.5);
-  -webkit-backdrop-filter: blur(18px) saturate(1.5);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 20px;
+  height: 60px; background: var(--glass); backdrop-filter: blur(18px) saturate(1.5); -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
   box-shadow: 0 2px 20px rgba(180,80,120,0.08);
 }
-.logo {
-  font-family: 'Noto Serif SC', serif;
-  font-size: 18px; font-weight: 700;
-  color: var(--rose-deep);
-  display: flex; align-items: center; gap: 8px;
-  user-select: none;
-  letter-spacing: 0.02em;
-}
-.logo-anim {
-  display: inline-block;
-  animation: heartbeat 2.4s ease-in-out infinite;
-}
-@keyframes heartbeat {
-  0%,100%{transform:scale(1)} 25%{transform:scale(1.22)} 50%{transform:scale(1.08)}
-}
+.logo { font-family: 'Noto Serif SC', serif; font-size: 18px; font-weight: 700; color: var(--rose-deep); display: flex; align-items: center; gap: 8px; user-select: none; }
+.logo-anim { display: inline-block; animation: heartbeat 2.4s ease-in-out infinite; }
+@keyframes heartbeat { 0%,100%{transform:scale(1)} 25%{transform:scale(1.22)} 50%{transform:scale(1.08)} }
+
 .topbar-actions { display: flex; gap: 8px; align-items: center; }
-.tb-btn {
-  display: flex; align-items: center; gap: 5px;
-  padding: 7px 15px; border-radius: 24px; border: none; cursor: pointer;
-  font-size: 13px; font-family: 'Noto Sans SC', sans-serif; font-weight: 500;
-  transition: all 0.2s; white-space: nowrap;
-}
-.tb-btn-ghost {
-  background: transparent; color: var(--text-sub); border: 1px solid var(--border-med);
-}
+.tb-btn { display: flex; align-items: center; gap: 5px; padding: 7px 15px; border-radius: 24px; border: none; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.2s; white-space: nowrap; }
+.tb-btn-ghost { background: transparent; color: var(--text-sub); border: 1px solid var(--border-med); }
 .tb-btn-ghost:hover { background: var(--rose-light); color: var(--rose-deep); border-color: var(--rose); }
 .tb-btn-ghost.active { background: var(--rose-light); color: var(--rose-deep); border-color: var(--rose-mid); }
-.tb-btn-primary {
-  background: linear-gradient(135deg, var(--rose-mid) 0%, #e91e8c 100%);
-  color: white;
-  box-shadow: 0 2px 14px rgba(240,98,146,0.38);
-}
+.tb-btn-primary { background: linear-gradient(135deg, var(--rose-mid) 0%, #e91e8c 100%); color: white; box-shadow: 0 2px 14px rgba(240,98,146,0.38); }
 .tb-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(240,98,146,0.48); }
-.tb-btn-primary.armed {
-  background: linear-gradient(135deg, #e91e8c 0%, var(--rose-deep) 100%);
-  animation: pulse-glow 1.5s ease-in-out infinite;
-}
-@keyframes pulse-glow {
-  0%,100%{box-shadow:0 2px 14px rgba(240,98,146,0.38)} 50%{box-shadow:0 4px 28px rgba(240,98,146,0.7)}
-}
+.tb-btn-primary.armed { background: linear-gradient(135deg, #e91e8c 0%, var(--rose-deep) 100%); animation: pulse-glow 1.5s ease-in-out infinite; }
+@keyframes pulse-glow { 0%,100%{box-shadow:0 2px 14px rgba(240,98,146,0.38)} 50%{box-shadow:0 4px 28px rgba(240,98,146,0.7)} }
 
-/* ─── BOTTOM STATS BAR ─── */
-.stats-pill {
-  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-  z-index: 800;
-  background: var(--glass);
-  backdrop-filter: blur(18px) saturate(1.5);
-  -webkit-backdrop-filter: blur(18px) saturate(1.5);
-  border: 1px solid var(--border);
-  border-radius: 40px;
-  padding: 10px 28px;
-  display: flex; align-items: center; gap: 28px;
-  box-shadow: var(--shadow-card);
-  white-space: nowrap;
-}
+.stats-pill { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 800; background: var(--glass); backdrop-filter: blur(18px) saturate(1.5); -webkit-backdrop-filter: blur(18px) saturate(1.5); border: 1px solid var(--border); border-radius: 40px; padding: 10px 28px; display: flex; align-items: center; gap: 28px; box-shadow: var(--shadow-card); white-space: nowrap; }
 .sp-item { text-align: center; }
-.sp-val {
-  font-family: 'Noto Serif SC', serif;
-  font-size: 18px; font-weight: 500; color: var(--rose-deep);
-  line-height: 1.1;
-}
+.sp-val { font-family: 'Noto Serif SC', serif; font-size: 18px; font-weight: 500; color: var(--rose-deep); line-height: 1.1; }
 .sp-label { font-size: 10px; color: var(--text-hint); margin-top: 2px; }
 .sp-divider { width: 1px; height: 32px; background: var(--border-med); }
 
-/* ─── SIDE PANELS ─── */
-.panel {
-  position: fixed; top: 0; right: 0; bottom: 0; z-index: 700;
-  width: 380px; max-width: 100vw;
-  background: var(--warm-white);
-  border-left: 1px solid var(--border);
-  box-shadow: -8px 0 48px rgba(180,80,120,0.12);
-  display: flex; flex-direction: column;
-  transform: translateX(100%);
-  transition: transform 0.36s cubic-bezier(.4,0,.2,1);
-  overflow: hidden;
-}
+.panel { position: fixed; top: 0; right: 0; bottom: 0; z-index: 700; width: 380px; max-width: 100vw; background: var(--warm-white); border-left: 1px solid var(--border); box-shadow: -8px 0 48px rgba(180,80,120,0.12); display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.36s cubic-bezier(.4,0,.2,1); overflow: hidden; }
 .panel.open { transform: translateX(0); }
-.panel-header {
-  padding: 72px 22px 16px;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(160deg, var(--rose-pale) 0%, var(--warm-white) 100%);
-  flex-shrink: 0;
-}
-.panel-title {
-  font-family: 'Noto Serif SC', serif; font-size: 20px; font-weight: 500;
-  color: var(--text-main); margin-bottom: 4px;
-}
+.panel-header { padding: 72px 22px 16px; border-bottom: 1px solid var(--border); background: linear-gradient(160deg, var(--rose-pale) 0%, var(--warm-white) 100%); flex-shrink: 0; }
+.panel-title { font-family: 'Noto Serif SC', serif; font-size: 20px; font-weight: 500; color: var(--text-main); margin-bottom: 4px; }
 .panel-sub { font-size: 12px; color: var(--text-hint); }
 .panel-body { flex: 1; overflow-y: auto; padding: 18px 20px; }
-.panel-body::-webkit-scrollbar { width: 4px; }
-.panel-body::-webkit-scrollbar-thumb { background: var(--rose-light); border-radius: 2px; }
 
-/* ─── TIMELINE ─── */
 .tl-list { position: relative; padding-left: 28px; }
-.tl-list::before {
-  content:''; position:absolute; left:9px; top:6px; bottom:6px; width:1.5px;
-  background: linear-gradient(to bottom, var(--rose), var(--peach), var(--sage));
-}
-.tl-item {
-  position: relative; margin-bottom: 20px;
-  animation: tl-in 0.4s ease both;
-}
+.tl-list::before { content:''; position:absolute; left:9px; top:6px; bottom:6px; width:1.5px; background: linear-gradient(to bottom, var(--rose), var(--peach), var(--sage)); }
+.tl-item { position: relative; margin-bottom: 20px; animation: tl-in 0.4s ease both; cursor: pointer; }
 @keyframes tl-in { from{opacity:0;transform:translateX(12px)} to{opacity:1;transform:none} }
-.tl-dot {
-  position: absolute; left: -23px; top: 16px;
-  width: 9px; height: 9px; border-radius: 50%;
-  background: var(--rose-mid); border: 2px solid white;
-  box-shadow: 0 0 0 3px rgba(240,98,146,0.25);
-}
-.tl-card {
-  background: white; border-radius: var(--r); border: 1px solid var(--border);
-  padding: 14px 16px; cursor: pointer;
-  transition: all 0.2s; position: relative; overflow: hidden;
-}
-.tl-card::before {
-  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
-  background: linear-gradient(to bottom, var(--rose-mid), var(--peach));
-}
+.tl-dot { position: absolute; left: -23px; top: 16px; width: 9px; height: 9px; border-radius: 50%; background: var(--rose-mid); border: 2px solid white; box-shadow: 0 0 0 3px rgba(240,98,146,0.25); }
+.tl-card { background: white; border-radius: var(--r); border: 1px solid var(--border); padding: 14px 16px; transition: all 0.2s; position: relative; overflow: hidden; }
+.tl-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background: linear-gradient(to bottom, var(--rose-mid), var(--peach)); }
 .tl-card:hover { transform: translateX(3px); box-shadow: var(--shadow-soft); border-color: var(--rose); }
 .tl-name { font-size: 14px; font-weight: 500; color: var(--text-main); margin-bottom: 3px; }
 .tl-date { font-size: 11px; color: var(--text-hint); margin-bottom: 7px; }
@@ -192,305 +98,121 @@ html, body {
 .tl-note { font-size: 12px; color: var(--text-sub); font-style: italic; margin-top: 5px; line-height: 1.6; }
 .tl-thumb { width:100%; height:80px; object-fit:cover; border-radius:8px; margin-top:8px; }
 
-/* ─── WISH LIST ─── */
-.wish-input-row {
-  display: flex; gap: 8px; margin-bottom: 16px;
-}
-.wish-input {
-  flex: 1; padding: 9px 13px; border-radius: 24px;
-  border: 1.5px solid var(--border-med); background: white;
-  font-size: 13px; font-family: 'Noto Sans SC', sans-serif; color: var(--text-main);
-  outline: none; transition: border-color 0.15s;
-}
+.wish-input-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.wish-input { flex: 1; padding: 9px 13px; border-radius: 24px; border: 1.5px solid var(--border-med); background: white; font-size: 13px; color: var(--text-main); outline: none; }
 .wish-input:focus { border-color: var(--rose-mid); box-shadow: 0 0 0 3px rgba(240,98,146,0.10); }
-.wish-add-btn {
-  padding: 9px 16px; border-radius: 24px; border: none; cursor: pointer;
-  background: var(--rose-light); color: var(--rose-deep); font-size: 13px;
-  font-family: 'Noto Sans SC', sans-serif; font-weight: 500; transition: all 0.15s;
-  white-space: nowrap;
-}
+.wish-add-btn { padding: 9px 16px; border-radius: 24px; border: none; cursor: pointer; background: var(--rose-light); color: var(--rose-deep); font-size: 13px; font-weight: 500; white-space: nowrap; }
 .wish-add-btn:hover { background: var(--rose); color: white; }
 .wish-list { display: flex; flex-direction: column; gap: 8px; }
-.wish-item {
-  background: white; border-radius: var(--r-sm); border: 1px solid var(--border);
-  padding: 11px 14px; display: flex; align-items: center; gap: 10px;
-  transition: all 0.2s; animation: tl-in 0.3s ease both;
-}
-.wish-item:hover { border-color: var(--rose); box-shadow: var(--shadow-soft); }
+.wish-item { background: white; border-radius: var(--r-sm); border: 1px solid var(--border); padding: 11px 14px; display: flex; align-items: center; gap: 10px; transition: all 0.2s; }
 .wish-heart { font-size: 16px; flex-shrink:0; cursor: pointer; }
 .wish-name { flex: 1; font-size: 13px; color: var(--text-main); }
-.wish-del {
-  width: 24px; height: 24px; border-radius: 50%; border: none;
-  background: transparent; cursor: pointer; color: var(--text-hint);
-  font-size: 14px; display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s; opacity: 0;
-}
+.wish-name.wish-done { text-decoration: line-through; color: var(--text-hint); }
+.wish-del { width: 24px; height: 24px; border-radius: 50%; border: none; background: transparent; cursor: pointer; color: var(--text-hint); font-size: 14px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.15s; }
 .wish-item:hover .wish-del { opacity: 1; }
 .wish-del:hover { background: #ffe0e0; color: #e53935; }
-.wish-done { text-decoration: line-through; color: var(--text-hint); }
 
-/* ─── MODAL (ADD / VIEW) ─── */
-.modal-mask {
-  position: fixed; inset: 0; z-index: 900;
-  background: rgba(50,10,30,0.38);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  display: none; align-items: center; justify-content: center;
-  padding: 16px;
-}
+.modal-mask { position: fixed; inset: 0; z-index: 900; background: rgba(50,10,30,0.38); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 16px; }
 .modal-mask.open { display: flex; }
-.modal {
-  background: var(--warm-white); border-radius: 24px;
-  width: 100%; max-width: 540px; max-height: 92vh;
-  overflow-y: auto; box-shadow: 0 24px 80px rgba(180,80,120,0.28);
-  border: 1px solid var(--border);
-  animation: modal-pop 0.32s cubic-bezier(.34,1.56,.64,1) both;
-}
-.modal::-webkit-scrollbar { width: 4px; }
-.modal::-webkit-scrollbar-thumb { background: var(--rose-light); border-radius: 2px; }
+.modal { background: var(--warm-white); border-radius: 24px; width: 100%; max-width: 540px; max-height: 92vh; overflow-y: auto; box-shadow: 0 24px 80px rgba(180,80,120,0.28); border: 1px solid var(--border); animation: modal-pop 0.32s cubic-bezier(.34,1.56,.64,1) both; }
 @keyframes modal-pop { from{opacity:0;transform:scale(0.88) translateY(24px)} to{opacity:1;transform:none} }
-.modal-header {
-  padding: 22px 24px 16px;
-  background: linear-gradient(135deg, var(--rose-pale) 0%, white 70%);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0;
-  border-radius: 24px 24px 0 0; z-index: 2;
-}
+.modal-header { padding: 22px 24px 16px; background: linear-gradient(135deg, var(--rose-pale) 0%, white 70%); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; border-radius: 24px 24px 0 0; z-index: 2; }
 .modal-title { font-family:'Noto Serif SC',serif; font-size:18px; font-weight:500; }
-.modal-close {
-  width: 32px; height: 32px; border-radius: 50%; border: none;
-  background: var(--rose-light); color: var(--rose-deep); cursor: pointer;
-  font-size: 14px; display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s; flex-shrink: 0;
-}
-.modal-close:hover { background: var(--rose-mid); color: white; }
+.modal-close { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--rose-light); color: var(--rose-deep); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 .modal-body { padding: 20px 24px; }
 
-/* Form elements */
 .f-section { margin-bottom: 18px; }
-.f-label {
-  font-size: 12px; font-weight: 500; color: var(--text-sub);
-  letter-spacing: 0.04em; margin-bottom: 6px; display: block;
-}
-.f-input, .f-select, .f-textarea {
-  width: 100%; padding: 10px 13px; border-radius: var(--r-sm);
-  border: 1.5px solid var(--border-med); background: white;
-  font-size: 14px; font-family: 'Noto Sans SC', sans-serif; color: var(--text-main);
-  outline: none; transition: all 0.15s;
-}
-.f-input:focus, .f-select:focus, .f-textarea:focus {
-  border-color: var(--rose-mid); box-shadow: 0 0 0 3px rgba(240,98,146,0.10);
-}
+.f-label { font-size: 12px; font-weight: 500; color: var(--text-sub); margin-bottom: 6px; display: block; }
+.f-input, .f-textarea { width: 100%; padding: 10px 13px; border-radius: var(--r-sm); border: 1.5px solid var(--border-med); background: white; font-size: 14px; outline: none; }
+.f-input:focus, .f-textarea:focus { border-color: var(--rose-mid); box-shadow: 0 0 0 3px rgba(240,98,146,0.10); }
 .f-textarea { resize: vertical; min-height: 68px; line-height: 1.65; }
 .f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .f-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-.expense-box {
-  background: linear-gradient(135deg, var(--rose-pale), var(--peach-light));
-  border-radius: var(--r); padding: 14px;
-  border: 1px dashed rgba(240,98,146,0.25);
-}
-.expense-box .f-label { color: var(--rose-deep); }
-.expense-total {
-  display: flex; justify-content: space-between; align-items: center;
-  padding-top: 10px; border-top: 1px dashed rgba(240,98,146,0.25); margin-top: 12px;
-}
-.expense-total-label { font-size: 13px; color: var(--text-sub); }
-.expense-total-val {
-  font-size: 20px; font-weight: 500; color: var(--rose-deep);
-  font-family: 'Noto Serif SC', serif;
-}
-/* Photo upload */
-.photo-drop {
-  border: 2px dashed var(--rose); border-radius: var(--r);
-  padding: 18px; text-align: center; cursor: pointer;
-  background: var(--rose-pale); transition: all 0.2s;
-}
-.photo-drop:hover { background: #fce0ec; }
-.photo-drop-icon { font-size: 26px; margin-bottom: 4px; }
-.photo-drop-text { font-size: 12px; color: var(--text-sub); }
+.expense-box { background: linear-gradient(135deg, var(--rose-pale), var(--peach-light)); border-radius: var(--r); padding: 14px; border: 1px dashed rgba(240,98,146,0.25); }
+.expense-total { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px dashed rgba(240,98,146,0.25); margin-top: 12px; }
+.expense-total-val { font-size: 20px; font-weight: 500; color: var(--rose-deep); font-family: 'Noto Serif SC', serif; }
+
+.photo-drop { border: 2px dashed var(--rose); border-radius: var(--r); padding: 18px; text-align: center; cursor: pointer; background: var(--rose-pale); }
 .photo-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .photo-thumb-wrap { position: relative; }
-.photo-thumb {
-  width: 72px; height: 72px; border-radius: 10px; object-fit: cover;
-  border: 2px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-.photo-rm {
-  position: absolute; top: -5px; right: -5px;
-  width: 18px; height: 18px; border-radius: 50%; background: var(--rose-deep);
-  color: white; border: none; cursor: pointer; font-size: 9px;
-  display: flex; align-items: center; justify-content: center;
-}
-/* Modal footer */
-.modal-footer {
-  padding: 14px 24px 20px; border-top: 1px solid var(--border);
-  display: flex; gap: 10px; justify-content: flex-end;
-}
-.btn-cancel {
-  padding: 10px 20px; border-radius: 10px;
-  border: 1.5px solid var(--border-med); background: white;
-  color: var(--text-sub); cursor: pointer; font-size: 13px;
-  font-family: 'Noto Sans SC', sans-serif; transition: all 0.15s;
-}
-.btn-cancel:hover { background: var(--rose-pale); border-color: var(--rose); color: var(--rose-deep); }
-.btn-save {
-  padding: 10px 26px; border-radius: 10px; border: none;
-  background: linear-gradient(135deg, var(--rose-mid), #e91e8c);
-  color: white; cursor: pointer; font-size: 13px; font-weight: 500;
-  font-family: 'Noto Sans SC', sans-serif;
-  box-shadow: 0 2px 14px rgba(240,98,146,0.38); transition: all 0.2s;
-}
-.btn-save:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(240,98,146,0.5); }
-.btn-delete {
-  padding: 10px 18px; border-radius: 10px;
-  border: 1.5px solid #ffc0c0; background: white; color: #e53935;
-  cursor: pointer; font-size: 13px; font-family: 'Noto Sans SC', sans-serif;
-  transition: all 0.15s; margin-right: auto;
-}
-.btn-delete:hover { background: #ffeaea; }
+.photo-thumb { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; border: 2px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+.photo-rm { position: absolute; top: -5px; right: -5px; width: 18px; height: 18px; border-radius: 50%; background: var(--rose-deep); color: white; border: none; cursor: pointer; font-size: 9px; display: flex; align-items: center; justify-content: center; }
 
-/* ─── VIEW MODAL ─── */
-.view-hero {
-  width: 100%; height: 200px; object-fit: cover; border-radius: 16px;
-  margin-bottom: 16px; display: block;
-}
-.view-hero-placeholder {
-  width: 100%; height: 160px; background: linear-gradient(135deg, var(--rose-pale), var(--peach-light));
-  border-radius: 16px; display: flex; align-items: center; justify-content: center;
-  font-size: 48px; margin-bottom: 16px;
-}
+.modal-footer { padding: 14px 24px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+.btn-cancel { padding: 10px 20px; border-radius: 10px; border: 1.5px solid var(--border-med); background: white; color: var(--text-sub); cursor: pointer; font-size: 13px; }
+.btn-save { padding: 10px 26px; border-radius: 10px; border: none; background: linear-gradient(135deg, var(--rose-mid), #e91e8c); color: white; cursor: pointer; font-size: 13px; font-weight: 500; box-shadow: 0 2px 14px rgba(240,98,146,0.38); }
+.btn-delete { padding: 10px 18px; border-radius: 10px; border: 1.5px solid #ffc0c0; background: white; color: #e53935; cursor: pointer; font-size: 13px; margin-right: auto; }
+
+.view-hero { width: 100%; height: 200px; object-fit: cover; border-radius: 16px; margin-bottom: 16px; display: block; }
+.view-hero-placeholder { width: 100%; height: 160px; background: linear-gradient(135deg, var(--rose-pale), var(--peach-light)); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 48px; margin-bottom: 16px; }
 .view-title { font-family:'Noto Serif SC',serif; font-size:22px; font-weight:500; margin-bottom:4px; }
 .view-date { font-size:13px; color:var(--text-hint); margin-bottom:14px; }
 .view-stat-row { display:flex; gap:14px; margin-bottom:16px; }
-.view-stat {
-  flex:1; background:var(--rose-pale); border-radius:12px; padding:12px;
-  text-align:center; border:1px solid rgba(240,98,146,0.12);
-}
+.view-stat { flex:1; background:var(--rose-pale); border-radius:12px; padding:12px; text-align:center; border:1px solid rgba(240,98,146,0.12); }
 .view-stat-val { font-size:17px; font-weight:500; color:var(--rose-deep); font-family:'Noto Serif SC',serif; }
 .view-stat-label { font-size:10px; color:var(--text-hint); margin-top:2px; }
-.view-note {
-  font-size:13px; color:var(--text-sub); line-height:1.8; font-style:italic;
-  background:var(--peach-light); border-radius:12px; padding:12px 14px;
-  border-left:3px solid var(--peach); margin-bottom:14px;
-}
+.view-note { font-size:13px; color:var(--text-sub); line-height:1.8; font-style:italic; background:var(--peach-light); border-radius:12px; padding:12px 14px; border-left:3px solid var(--peach); margin-bottom:14px; }
 .view-photos { display:flex; gap:8px; flex-wrap:wrap; }
 .view-photo { height:80px; border-radius:10px; object-fit:cover; cursor:pointer; }
 
-/* ─── CUSTOM LEAFLET MARKER ─── */
-.heart-marker {
-  position: relative; cursor: pointer;
-}
-.heart-svg {
-  width: 36px; height: 36px;
-  filter: drop-shadow(0 3px 8px rgba(240,98,146,0.55));
-  transition: transform 0.2s;
-}
+.heart-marker { position: relative; cursor: pointer; }
+.heart-svg { width: 36px; height: 36px; filter: drop-shadow(0 3px 8px rgba(240,98,146,0.55)); transition: transform 0.2s; }
 .heart-marker:hover .heart-svg { transform: scale(1.25); }
-.heart-label {
-  position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
-  background: rgba(255,255,255,0.95);
-  border: 1px solid var(--border);
-  border-radius: 20px; padding: 2px 8px;
-  font-size: 10px; color: var(--rose-deep); font-weight: 500;
-  white-space: nowrap; font-family: 'Noto Sans SC', sans-serif;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  pointer-events: none;
-}
+.heart-label { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); background: rgba(255,255,255,0.95); border: 1px solid var(--border); border-radius: 20px; padding: 2px 8px; font-size: 10px; color: var(--rose-deep); font-weight: 500; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.08); pointer-events: none; }
 
-/* ─── MODE INDICATOR ─── */
-.mode-banner {
-  position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
-  z-index: 800; background: rgba(240,98,146,0.92);
-  color: white; padding: 8px 22px; border-radius: 24px;
-  font-size: 13px; font-weight: 500;
-  box-shadow: 0 4px 16px rgba(240,98,146,0.38);
-  display: none; backdrop-filter: blur(8px);
-  animation: banner-in 0.3s ease;
-}
+.mode-banner { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 800; background: rgba(240,98,146,0.92); color: white; padding: 8px 22px; border-radius: 24px; font-size: 13px; font-weight: 500; box-shadow: 0 4px 16px rgba(240,98,146,0.38); display: none; backdrop-filter: blur(8px); animation: banner-in 0.3s ease; }
 .mode-banner.show { display: block; }
 @keyframes banner-in { from{opacity:0;transform:translateX(-50%) translateY(-8px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
 
-/* ─── EMPTY STATES ─── */
 .empty-state { text-align:center; padding:50px 20px; color:var(--text-hint); }
 .empty-icon { font-size:44px; margin-bottom:12px; opacity:0.6; }
 .empty-text { font-size:14px; margin-bottom:6px; }
-.empty-sub { font-size:12px; }
 
-/* ─── RESPONSIVE ─── */
 @media (max-width: 600px) {
   .panel { width: 100%; }
   .stats-pill { padding: 8px 16px; gap: 16px; }
   .sp-val { font-size:15px; }
   .tb-btn span.tb-text { display:none; }
-  .modal { border-radius: 20px 20px 0 0; max-height: 85vh; }
   .modal-mask { align-items: flex-end; padding: 0; }
+  .modal { border-radius: 20px 20px 0 0; max-height: 85vh; }
 }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="logo">
-    <span class="logo-anim">💕</span>
-    我们的世界
-  </div>
+  <div class="logo"><span class="logo-anim">💕</span> 我们的世界</div>
   <div class="topbar-actions">
-    <button class="tb-btn tb-btn-ghost" id="btn-timeline" onclick="togglePanel('timeline')">
-      🕐 <span class="tb-text">时光轴</span>
-    </button>
-    <button class="tb-btn tb-btn-ghost" id="btn-wishlist" onclick="togglePanel('wishlist')">
-      ✨ <span class="tb-text">心愿清单</span>
-    </button>
-    <button class="tb-btn tb-btn-primary" id="btn-add-mode" onclick="toggleAddMode()">
-      💝 <span class="tb-text">打卡足迹</span>
-    </button>
+    <button class="tb-btn tb-btn-ghost" id="btn-timeline" onclick="window.togglePanel('timeline')">🕐 <span class="tb-text">时光轴</span></button>
+    <button class="tb-btn tb-btn-ghost" id="btn-wishlist" onclick="window.togglePanel('wishlist')">✨ <span class="tb-text">心愿清单</span></button>
+    <button class="tb-btn tb-btn-primary" id="btn-add-mode" onclick="window.toggleAddMode()">💝 <span class="tb-text">打卡足迹</span></button>
   </div>
 </div>
 
 <div class="mode-banner" id="mode-banner">📍 点击地图任意位置，标记你们的爱的足迹 ♡</div>
-
 <div id="map"></div>
 
 <div class="stats-pill">
-  <div class="sp-item">
-    <div class="sp-val" id="s-trips">0</div>
-    <div class="sp-label">旅行次数</div>
-  </div>
+  <div class="sp-item"><div class="sp-val" id="s-trips">0</div><div class="sp-label">旅行次数</div></div>
   <div class="sp-divider"></div>
-  <div class="sp-item">
-    <div class="sp-val" id="s-cities">0</div>
-    <div class="sp-label">足迹城市</div>
-  </div>
+  <div class="sp-item"><div class="sp-val" id="s-cities">0</div><div class="sp-label">足迹城市</div></div>
   <div class="sp-divider"></div>
-  <div class="sp-item">
-    <div class="sp-val" id="s-total">¥0</div>
-    <div class="sp-label">总花费</div>
-  </div>
+  <div class="sp-item"><div class="sp-val" id="s-total">¥0</div><div class="sp-label">总花费</div></div>
   <div class="sp-divider"></div>
-  <div class="sp-item">
-    <div class="sp-val" id="s-days">0</div>
-    <div class="sp-label">旅行天数</div>
-  </div>
+  <div class="sp-item"><div class="sp-val" id="s-days">0</div><div class="sp-label">旅行天数</div></div>
 </div>
 
 <div class="panel" id="panel-timeline">
-  <div class="panel-header">
-    <div class="panel-title">🌸 Sweet Memory</div>
-    <div class="panel-sub">时光轴章节记录</div>
-  </div>
-  <div class="panel-body">
-    <div class="tl-list" id="tl-list"></div>
-  </div>
+  <div class="panel-header"><div class="panel-title">🌸 Sweet Memory</div><div class="panel-sub">时光轴章节记录</div></div>
+  <div class="panel-body"><div class="tl-list" id="tl-list"></div></div>
 </div>
 
 <div class="panel" id="panel-wishlist">
-  <div class="panel-header">
-    <div class="panel-title">✨ Wish list</div>
-    <div class="panel-sub">心愿目的地等待启航</div>
-  </div>
+  <div class="panel-header"><div class="panel-title">✨ Wish list</div><div class="panel-sub">心愿目的地等待启航</div></div>
   <div class="panel-body">
     <div class="wish-input-row">
-      <input type="text" class="wish-input" id="wish-input" placeholder="输入目的地，例如：京都、北极光..." onkeydown="wishKeydown(event)">
-      <button class="wish-add-btn" onclick="addWish()">+ Add</button>
+      <input type="text" class="wish-input" id="wish-input" placeholder="输入目的地后按回车...">
+      <button class="wish-add-btn" onclick="window.addWish()">+ Add</button>
     </div>
     <div class="wish-list" id="wish-list"></div>
   </div>
@@ -498,233 +220,84 @@ html, body {
 
 <div class="modal-mask" id="modal-add">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">💝 Record this travel</div>
-      <button class="modal-close" onclick="closeAddModal()">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title">💝 记录这次旅途</div><button class="modal-close" onclick="window.closeAddModal()">✕</button></div>
     <div class="modal-body">
-
-      <div class="f-section">
-        <label class="f-label">Destination</label>
-        <input type="text" class="f-input" id="f-place" placeholder="例如：京都、巴黎、丽江古城">
-      </div>
-
-      <div class="f-section">
-        <div class="f-row">
-          <div>
-            <label class="f-label">出发日期</label>
-            <input type="date" class="f-input" id="f-start">
-          </div>
-          <div>
-            <label class="f-label">返程日期</label>
-            <input type="date" class="f-input" id="f-end">
-          </div>
-        </div>
-      </div>
-
+      <div class="f-section"><label class="f-label">Destination</label><input type="text" class="f-input" id="f-place" placeholder="例如：丽江古城、大理"></div>
+      <div class="f-section"><div class="f-row"><div><label class="f-label">出发日期</label><input type="date" class="f-input" id="f-start"></div><div><label class="f-label">返程日期</label><input type="date" class="f-input" id="f-end"></div></div></div>
       <div class="f-section">
         <label class="f-label">旅行花费明细</label>
         <div class="expense-box">
           <div class="f-row-3" style="margin-bottom:10px">
-            <div>
-              <label class="f-label">🚄 交通</label>
-              <input type="number" class="f-input" id="f-transport" placeholder="0" min="0" oninput="updateTotal()">
-            </div>
-            <div>
-              <label class="f-label">🏨 住宿</label>
-              <input type="number" class="f-input" id="f-stay" placeholder="0" min="0" oninput="updateTotal()">
-            </div>
-            <div>
-              <label class="f-label">🍜 餐饮</label>
-              <input type="number" class="f-input" id="f-food" placeholder="0" min="0" oninput="updateTotal()">
-            </div>
+            <div><label class="f-label">🚄 交通</label><input type="number" class="f-input" id="f-transport" placeholder="0" oninput="window.updateTotal()"></div>
+            <div><label class="f-label">🏨 住宿</label><input type="number" class="f-input" id="f-stay" placeholder="0" oninput="window.updateTotal()"></div>
+            <div><label class="f-label">🍜 餐饮</label><input type="number" class="f-input" id="f-food" placeholder="0" oninput="window.updateTotal()"></div>
           </div>
           <div class="f-row">
-            <div>
-              <label class="f-label">🎡 游玩门票</label>
-              <input type="number" class="f-input" id="f-play" placeholder="0" min="0" oninput="updateTotal()">
-            </div>
-            <div>
-              <label class="f-label">🛍️ 购物其他</label>
-              <input type="number" class="f-input" id="f-other" placeholder="0" min="0" oninput="updateTotal()">
-            </div>
+            <div><label class="f-label">🎡 门票</label><input type="number" class="f-input" id="f-play" placeholder="0" oninput="window.updateTotal()"></div>
+            <div><label class="f-label">🛍️ 其他</label><input type="number" class="f-input" id="f-other" placeholder="0" oninput="window.updateTotal()"></div>
           </div>
-          <div class="expense-total">
-            <div>
-              <div class="expense-total-label">双人合计</div>
-              <div style="font-size:11px;color:var(--text-hint)">单人均摊 <span id="f-solo">¥0</span></div>
-            </div>
-            <div class="expense-total-val" id="f-total">¥0</div>
-          </div>
-          <div class="f-row" style="margin-top:10px">
-            <div>
-              <label class="f-label">TA 的支出</label>
-              <input type="number" class="f-input" id="f-p1" placeholder="0" min="0">
-            </div>
-            <div>
-              <label class="f-label">我的支出</label>
-              <input type="number" class="f-input" id="f-p2" placeholder="0" min="0">
-            </div>
-          </div>
+          <div class="expense-total"><div><div class="expense-total-label">双人合计</div></div><div class="expense-total-val" id="f-total">¥0</div></div>
         </div>
       </div>
-
-      <div class="f-section">
-        <label class="f-label">旅行心情文案 ✍️</label>
-        <textarea class="f-textarea" id="f-note" placeholder="写下这趟旅途最想记住的瞬间、心情或者对彼此说的话…"></textarea>
-      </div>
-
+      <div class="f-section"><label class="f-label">旅行心情文案 ✍️</label><textarea class="f-textarea" id="f-note" placeholder="写下你们最想记住的瞬间..."></textarea></div>
       <div class="f-section">
         <label class="f-label">旅途合照 📷</label>
-        <div class="photo-drop" onclick="document.getElementById('f-photos').click()">
-          <div class="photo-drop-icon">📸</div>
-          <div class="photo-drop-text">点击上传旅途照片<br><span style="color:var(--text-hint);font-size:11px">JPG / PNG，支持多张</span></div>
-        </div>
-        <input type="file" id="f-photos" multiple accept="image/*" style="display:none" onchange="handlePhotos(event)">
+        <div class="photo-drop" onclick="document.getElementById('f-photos').click()">📸 点击上传照片</div>
+        <input type="file" id="f-photos" multiple accept="image/*" style="display:none" onchange="window.handlePhotos(event)">
         <div class="photo-grid" id="photo-grid"></div>
       </div>
-
     </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeAddModal()">取消</button>
-      <button class="btn-save" onclick="saveTrip()">保存足迹 💕</button>
-    </div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="window.closeAddModal()">取消</button><button class="btn-save" onclick="window.saveTrip()">保存足迹 💕</button></div>
   </div>
 </div>
 
 <div class="modal-mask" id="modal-view">
   <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="view-modal-title">查看旅途</div>
-      <button class="modal-close" onclick="closeViewModal()">✕</button>
-    </div>
+    <div class="modal-header"><div class="modal-title" id="view-modal-title">查看旅途</div><button class="modal-close" onclick="window.closeViewModal()">✕</button></div>
     <div class="modal-body" id="view-modal-body"></div>
-    <div class="modal-footer">
-      <button class="btn-delete" id="view-delete-btn">删除</button>
-      <button class="btn-cancel" onclick="closeViewModal()">关闭</button>
-      <button class="btn-save" id="view-edit-btn">编辑</button>
-    </div>
+    <div class="modal-footer"><button class="btn-delete" id="view-delete-btn">删除</button><button class="btn-cancel" onclick="window.closeViewModal()">关闭</button></div>
   </div>
 </div>
 
 <script>
 window.addEventListener('load', function() {
-  // ══════════════════════════════════════════════
-  // DATA & INITIALIZATION
-  // ══════════════════════════════════════════════
-  const STORAGE_KEY = 'cwt_trips_v2';
-  const WISH_KEY    = 'cwt_wishes_v1';
-  let trips   = [];
-  let wishes  = [];
+  let trips = [];
+  let wishes = [];
   let addMode = false;
   let pendingLatLng = null;
   let pendingPhotos = [];
-  let currentEditId = null;
+  const markerMap = {};
 
-  // 加载数据与初始化渲染
-  loadData();
-  renderMarkers();
-  renderTimeline();
-  renderWishlist();
-  updateStats();
+  // 地图初始化
+  const map = L.map('map', { center: [30, 105], zoom: 4, zoomControl: false, attributionControl: false });
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png').addTo(map);
   document.getElementById('map').classList.add('browse-mode');
-
-  function loadData() {
-    try { trips  = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { trips  = []; }
-    try { wishes = JSON.parse(localStorage.getItem(WISH_KEY))    || []; } catch { wishes = []; }
-  }
-
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trips));
-    localStorage.setItem(WISH_KEY, JSON.stringify(wishes));
-    updateStats();
-  }
-
-  // ══════════════════════════════════════════════
-  // MAP LEAFLET INIT
-  // ══════════════════════════════════════════════
-  const map = L.map('map', {
-    center: [30, 105],
-    zoom: 4,
-    zoomControl: false,
-    attributionControl: false,
-    maxZoom: 18, minZoom: 2,
-  });
-
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap © CARTO',
-    subdomains: 'abcd',
-    maxZoom: 19,
-  }).addTo(map);
-
-  L.control.zoom({ position: 'bottomright' }).addTo(map);
 
   map.on('click', e => {
     if (!addMode) return;
     pendingLatLng = e.latlng;
-    openAddModal();
+    window.openAddModal();
   });
 
-  function createHeartIcon(label) {
-    const html = `
-      <div class="heart-marker">
-        <div class="heart-label">${label}</div>
-        <svg class="heart-svg" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M18 30.5s-14-8.8-14-19a9 9 0 0 1 14-7.5A9 9 0 0 1 32 11.5c0 10.2-14 19-14 19z"
-            fill="#f06292" stroke="white" stroke-width="2.5"/>
-          <path d="M11 13c0-3 3-5 5.5-3.5" stroke="rgba(255,255,255,0.7)" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </div>`;
-    return L.divIcon({
-      html, className: '', iconSize: [36, 58], iconAnchor: [18, 56]
-    });
+  function loadData() {
+    try { trips = JSON.parse(localStorage.getItem('cwt_trips_v2')) || []; } catch { trips = []; }
+    try { wishes = JSON.parse(localStorage.getItem('cwt_wishes_v1')) || []; } catch { wishes = []; }
   }
 
-  // ══════════════════════════════════════════════
-  // MARKERS & POLYLINE RENDER
-  // ══════════════════════════════════════════════
-  const markerMap = {};
-
-  function renderMarkers() {
-    Object.values(markerMap).forEach(m => map.removeLayer(m));
-    Object.keys(markerMap).forEach(k => delete markerMap[k]);
-
-    trips.forEach(trip => {
-      const m = L.marker([trip.lat, trip.lng], {
-        icon: createHeartIcon(trip.place || '♡'),
-      }).addTo(map);
-      m.on('click', e => {
-        L.DomEvent.stopPropagation(e);
-        openViewModal(trip.id);
-      });
-      markerMap[trip.id] = m;
-    });
-
-    const sorted = [...trips].sort((a,b) => (a.startDate||'') < (b.startDate||'') ? -1 : 1);
-    if (window._routeLine) map.removeLayer(window._routeLine);
-    if (sorted.length > 1) {
-      window._routeLine = L.polyline(
-        sorted.map(t => [t.lat, t.lng]),
-        { color: '#f06292', weight: 2, opacity: 0.45, dashArray: '6,8', smoothFactor: 1.5 }
-      ).addTo(map);
-    }
+  function save() {
+    localStorage.setItem('cwt_trips_v2', JSON.stringify(trips));
+    localStorage.setItem('cwt_wishes_v1', JSON.stringify(wishes));
+    updateStats();
   }
 
-  // ══════════════════════════════════════════════
-  // GLOBAL CONTROLS (MOUNTED ON WINDOW)
-  // ══════════════════════════════════════════════
-  window.togglePanel = function(panelType) {
-    const panels = ['timeline', 'wishlist'];
-    panels.forEach(p => {
+  window.togglePanel = function(type) {
+    ['timeline', 'wishlist'].forEach(p => {
       const el = document.getElementById(`panel-${p}`);
       const btn = document.getElementById(`btn-${p}`);
-      if (p === panelType) {
+      if (p === type) {
         const isOpen = el.classList.toggle('open');
         btn.classList.toggle('active', isOpen);
-      } else {
-        el.classList.remove('open');
-        btn.classList.remove('active');
-      }
+      } else { el.classList.remove('open'); btn.classList.remove('active'); }
     });
   };
 
@@ -732,66 +305,28 @@ window.addEventListener('load', function() {
     addMode = !addMode;
     const btn = document.getElementById('btn-add-mode');
     const banner = document.getElementById('mode-banner');
-    const mapEl = document.getElementById('map');
     if (addMode) {
-      btn.classList.add('armed');
-      btn.innerHTML = '✕ <span class="tb-text">取消打卡</span>';
-      banner.classList.add('show');
-      mapEl.classList.remove('browse-mode');
-      // 关闭侧边栏以释放视口
-      ['timeline', 'wishlist'].forEach(p => {
-        document.getElementById(`panel-${p}`).classList.remove('open');
-        document.getElementById(`btn-${p}`).classList.remove('active');
-      });
+      btn.classList.add('armed'); btn.innerHTML = '✕ <span>取消打卡</span>'; banner.classList.add('show');
+      ['timeline', 'wishlist'].forEach(p => { document.getElementById(`panel-${p}`).classList.remove('open'); });
     } else {
-      btn.classList.remove('armed');
-      btn.innerHTML = '💝 <span class="tb-text">打卡足迹</span>';
-      banner.classList.remove('show');
-      mapEl.classList.add('browse-mode');
+      btn.classList.remove('armed'); btn.innerHTML = '💝 <span>打卡足迹</span>'; banner.classList.remove('show');
     }
   };
 
-  // ─── ADD / EDIT MODAL CORE ───
-  window.openAddModal = function(tripId = null) {
-    currentEditId = tripId;
-    pendingPhotos = [];
-    const isEdit = !!tripId;
-    const trip = isEdit ? trips.find(t => t.id === tripId) : null;
-
-    document.querySelector('#modal-add .modal-title').textContent = isEdit ? '✏️ 编辑旅途记录' : '💝 记录这次旅途';
-
-    document.getElementById('f-place').value    = trip?.place    || '';
-    document.getElementById('f-start').value    = trip?.startDate || '';
-    document.getElementById('f-end').value      = trip?.endDate   || '';
-    document.getElementById('f-transport').value= trip?.expenses?.transport || '';
-    document.getElementById('f-stay').value     = trip?.expenses?.stay      || '';
-    document.getElementById('f-food').value     = trip?.expenses?.food      || '';
-    document.getElementById('f-play').value     = trip?.expenses?.play      || '';
-    document.getElementById('f-other').value    = trip?.expenses?.other     || '';
-    document.getElementById('f-p1').value       = trip?.p1 || '';
-    document.getElementById('f-p2').value       = trip?.p2 || '';
-    document.getElementById('f-note').value     = trip?.note || '';
-
-    if (trip?.photos) pendingPhotos = [...trip.photos];
-    renderPhotoPreviews();
-    updateTotal();
-
-    document.getElementById('modal-add').classList.add('open');
-    if (!isEdit && addMode) toggleAddMode();
+  window.openAddModal = function() {
+    pendingPhotos = []; document.getElementById('photo-grid').innerHTML = '';
+    document.getElementById('f-place').value = ''; document.getElementById('f-start').value = '';
+    document.getElementById('f-end').value = ''; document.getElementById('f-note').value = '';
+    ['f-transport','f-stay','f-food','f-play','f-other'].forEach(id => document.getElementById(id).value = '');
+    window.updateTotal(); document.getElementById('modal-add').classList.add('open');
   };
 
-  window.closeAddModal = function() {
-    document.getElementById('modal-add').classList.remove('open');
-    currentEditId = null;
-    pendingLatLng = null;
-  };
+  window.closeAddModal = function() { document.getElementById('modal-add').classList.remove('open'); };
+  window.closeViewModal = function() { document.getElementById('modal-view').classList.remove('open'); };
 
   window.updateTotal = function() {
-    const vals = ['f-transport','f-stay','f-food','f-play','f-other']
-      .map(id => parseFloat(document.getElementById(id).value)||0);
-    const total = vals.reduce((a,b)=>a+b,0);
-    document.getElementById('f-total').textContent = '¥' + total.toLocaleString('zh-CN',{maximumFractionDigits:0});
-    document.getElementById('f-solo').textContent  = '¥' + Math.round(total/2).toLocaleString('zh-CN',{maximumFractionDigits:0});
+    const total = ['f-transport','f-stay','f-food','f-play','f-other'].reduce((sum, id) => sum + (parseFloat(document.getElementById(id).value)||0), 0);
+    document.getElementById('f-total').textContent = '¥' + total;
   };
 
   window.handlePhotos = function(e) {
@@ -800,228 +335,85 @@ window.addEventListener('load', function() {
       r.onload = ev => { pendingPhotos.push(ev.target.result); renderPhotoPreviews(); };
       r.readAsDataURL(file);
     });
-    e.target.value = '';
   };
 
   function renderPhotoPreviews() {
-    const grid = document.getElementById('photo-grid');
-    grid.innerHTML = pendingPhotos.map((src,i) => `
-      <div class="photo-thumb-wrap">
-        <img src="${src}" class="photo-thumb">
-        <button class="photo-rm" onclick="removePhoto(${i})">✕</button>
-      </div>`).join('');
+    document.getElementById('photo-grid').innerHTML = pendingPhotos.map((src, i) => `
+      <div class="photo-thumb-wrap"><img src="${src}" class="photo-thumb"><button class="photo-rm" onclick="window.removePhoto(${i})">✕</button></div>
+    `).join('');
   }
-
   window.removePhoto = function(i) { pendingPhotos.splice(i,1); renderPhotoPreviews(); };
 
   window.saveTrip = function() {
     const place = document.getElementById('f-place').value.trim();
-    if (!place) { alert('请填写旅行地点名称 🌸'); return; }
-
-    const expenses = {
-      transport: parseFloat(document.getElementById('f-transport').value)||0,
-      stay:      parseFloat(document.getElementById('f-stay').value)||0,
-      food:      parseFloat(document.getElementById('f-food').value)||0,
-      play:      parseFloat(document.getElementById('f-play').value)||0,
-      other:     parseFloat(document.getElementById('f-other').value)||0,
-    };
-    expenses.total = Object.values(expenses).reduce((a,b)=>a+b,0);
-
-    const startDate = document.getElementById('f-start').value;
-    const endDate   = document.getElementById('f-end').value;
-    let days = 1;
-    if (startDate && endDate) {
-      const ms = new Date(endDate) - new Date(startDate);
-      if (ms > 0) days = Math.round(ms/86400000) + 1;
-    }
-
-    if (currentEditId) {
-      const idx = trips.findIndex(t=>t.id===currentEditId);
-      if (idx >= 0) {
-        trips[idx] = { ...trips[idx], place, startDate, endDate, days, expenses,
-          p1: parseFloat(document.getElementById('f-p1').value)||0,
-          p2: parseFloat(document.getElementById('f-p2').value)||0,
-          note: document.getElementById('f-note').value.trim(),
-          photos: [...pendingPhotos] };
-      }
-    } else {
-      const newTrip = {
-        id: 't_' + Date.now(),
-        lat: pendingLatLng ? pendingLatLng.lat : 30,
-        lng: pendingLatLng ? pendingLatLng.lng : 105,
-        place, startDate, endDate, days, expenses,
-        p1: parseFloat(document.getElementById('f-p1').value)||0,
-        p2: parseFloat(document.getElementById('f-p2').value)||0,
-        note: document.getElementById('f-note').value.trim(),
-        photos: [...pendingPhotos]
-      };
-      trips.push(newTrip);
-    }
-
-    save();
-    renderMarkers();
-    renderTimeline();
-    closeAddModal();
+    if (!place) { alert('请输入目的地名称 🌸'); return; }
+    const total = ['f-transport','f-stay','f-food','f-play','f-other'].reduce((sum, id) => sum + (parseFloat(document.getElementById(id).value)||0), 0);
+    
+    trips.push({
+      id: 't_' + Date.now(), lat: pendingLatLng?.lat || 30, lng: pendingLatLng?.lng || 105,
+      place, startDate: document.getElementById('f-start').value, note: document.getElementById('f-note').value,
+      expenses: { total }, photos: [...pendingPhotos]
+    });
+    save(); renderMarkers(); renderTimeline(); window.toggleAddMode(); window.closeAddModal();
   };
 
-  // ─── VIEW DETAILS MODAL ───
-  window.openViewModal = function(tripId) {
-    const trip = trips.find(t => t.id === tripId);
-    if (!trip) return;
-
-    document.getElementById('view-modal-title').textContent = '🌸 旅途独家记忆';
-    const body = document.getElementById('view-modal-body');
-
-    let photoHtml = '';
-    if (trip.photos && trip.photos.length > 0) {
-      photoHtml = `<img src="${trip.photos[0]}" class="view-hero">`;
-      if (trip.photos.length > 1) {
-        photoHtml += `<div class="view-photos">` + trip.photos.map(p => `<img src="${p}" class="view-photo" onclick="window.open('${p}')">`).join('') + `</div>`;
-      }
-    } else {
-      photoHtml = `<div class="view-hero-placeholder">🗺️</div>`;
-    }
-
-    const dateStr = trip.startDate ? `${trip.startDate} 至 ${trip.endDate || '当天'} (${trip.days}天)` : '未设置日期';
-
-    body.innerHTML = `
-      ${photoHtml}
-      <div style="margin-top:14px">
-        <div class="view-title">${trip.place}</div>
-        <div class="view-date">📅 ${dateStr}</div>
-        
-        <div class="view-stat-row">
-          <div class="view-stat">
-            <div class="view-stat-val">¥${trip.expenses?.total?.toLocaleString() || 0}</div>
-            <div class="view-stat-label">双人总花费</div>
-          </div>
-          <div class="view-stat">
-            <div class="view-stat-val">¥${Math.round((trip.expenses?.total||0)/2).toLocaleString()}</div>
-            <div class="view-stat-label">AA单人均摊</div>
-          </div>
-        </div>
-
-        ${trip.note ? `<div class="view-note">${trip.note.replace(/\n/g, '<br>')}</div>` : ''}
-        
-        <div style="font-size:12px; color:var(--text-sub); background:#fff; padding:10px; border-radius:8px; border:1px solid var(--border); line-height:1.6">
-          💰 记账明细：交通 ¥${trip.expenses?.transport||0} | 住宿 ¥${trip.expenses?.stay||0} | 餐饮 ¥${trip.expenses?.food||0} | 游玩 ¥${trip.expenses?.play||0} <br>
-          🤝 实际支付：TA 支付了 ¥${trip.p1||0}，我支付了 ¥${trip.p2||0}
-        </div>
-      </div>
-    `;
-
-    document.getElementById('view-delete-btn').onclick = () => deleteTrip(tripId);
-    document.getElementById('view-edit-btn').onclick = () => { closeViewModal(); openAddModal(tripId); };
+  window.openViewModal = function(id) {
+    const t = trips.find(item => item.id === id); if (!t) return;
     document.getElementById('modal-view').classList.add('open');
+    document.getElementById('view-modal-body').innerHTML = `
+      ${t.photos?.[0] ? `<img src="${t.photos[0]}" class="view-hero">` : '<div class="view-hero-placeholder">🗺️</div>'}
+      <div class="view-title">${t.place}</div><div class="view-date">📅 ${t.startDate || '未设定日期'}</div>
+      <div class="view-stat-row"><div class="view-stat"><div class="view-stat-val">¥${t.expenses?.total || 0}</div><div class="view-stat-label">总消费</div></div></div>
+      <div class="view-note">${t.note || '未留下文字记录'}</div>
+    `;
+    document.getElementById('view-delete-btn').onclick = () => {
+      trips = trips.filter(item => item.id !== id); save(); renderMarkers(); renderTimeline(); window.closeViewModal();
+    };
   };
 
-  window.closeViewModal = function() {
-    document.getElementById('modal-view').classList.remove('open');
-  };
-
-  function deleteTrip(tripId) {
-    if (!confirm('确定要删除这趟浪漫的足迹吗？🥺')) return;
-    trips = trips.filter(t => t.id !== tripId);
-    save();
-    renderMarkers();
-    renderTimeline();
-    closeViewModal();
+  function renderMarkers() {
+    Object.values(markerMap).forEach(m => map.removeLayer(m));
+    trips.forEach(t => {
+      const html = `<div class="heart-marker"><div class="heart-label">${t.place}</div><svg class="heart-svg" viewBox="0 0 36 36"><path d="M18 30.5s-14-8.8-14-19a9 9 0 0 1 14-7.5A9 9 0 0 1 32 11.5c0 10.2-14 19-14 19z" fill="#f06292" stroke="white" stroke-width="2.5"/></svg></div>`;
+      const m = L.marker([t.lat, t.lng], { icon: L.divIcon({ html, className: '', iconSize: [36, 58], iconAnchor: [18, 56] }) }).addTo(map);
+      m.on('click', () => window.openViewModal(t.id));
+      markerMap[t.id] = m;
+    });
   }
 
-  // ─── TIMELINE RENDERING ───
   function renderTimeline() {
-    const listEl = document.getElementById('tl-list');
-    if (trips.length === 0) {
-      listEl.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">🍂</div>
-          <div class="empty-text">这里空空如也</div>
-          <div class="empty-sub">点击右上角“打卡足迹”，在地图上写下故事吧</div>
-        </div>`;
-      return;
-    }
-
-    const sorted = [...trips].sort((a,b) => (b.startDate||'') < (a.startDate||'') ? -1 : 1);
-    listEl.innerHTML = sorted.map(trip => {
-      const thumb = trip.photos && trip.photos.length > 0 ? `<img src="${trip.photos[0]}" class="tl-thumb">` : '';
-      return `
-        <div class="tl-item" onclick="openViewModal('${trip.id}')">
-          <div class="tl-dot"></div>
-          <div class="tl-card">
-            <div class="tl-name">📍 ${trip.place}</div>
-            <div class="tl-date">📅 ${trip.startDate || '未定日期'}</div>
-            <div class="tl-cost">¥${trip.expenses?.total?.toLocaleString() || 0}</div>
-            ${trip.note ? `<div class="tl-note">${trip.note.substring(0, 35)}${trip.note.length > 35 ? '...' : ''}</div>` : ''}
-            ${thumb}
-          </div>
-        </div>`;
-    }).join('');
+    const container = document.getElementById('tl-list');
+    if(!trips.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">🍂</div><div class="empty-text">点击右上角打卡足迹，开始第一条记录吧</div></div>'; return; }
+    container.innerHTML = trips.map(t => `<div class="tl-item" onclick="window.openViewModal('${t.id}')"><div class="tl-dot"></div><div class="tl-card"><div class="tl-name">📍 ${t.place}</div><div class="tl-date">📅 ${t.startDate || ''}</div></div></div>`).join('');
   }
 
-  // ─── WISHLIST INTERACTION ───
   window.addWish = function() {
-    const input = document.getElementById('wish-input');
-    const name = input.value.trim();
-    if (!name) return;
-
-    wishes.push({ id: 'w_' + Date.now(), name, done: false });
-    input.value = '';
-    save();
-    renderWishlist();
+    const input = document.getElementById('wish-input'); if (!input.value.trim()) return;
+    wishes.push({ id: 'w_'+Date.now(), name: input.value.trim(), done: false });
+    input.value = ''; save(); renderWishlist();
   };
-
-  window.wishKeydown = function(e) {
-    if (e.key === 'Enter') addWish();
-  };
+  document.getElementById('wish-input').addEventListener('keydown', e => { if(e.key==='Enter') window.addWish(); });
 
   window.toggleWish = function(id) {
-    const wish = wishes.find(w => w.id === id);
-    if (wish) {
-      wish.done = !wish.done;
-      save();
-      renderWishlist();
-    }
+    const w = wishes.find(item => item.id === id); if(w) { w.done = !w.done; save(); renderWishlist(); }
   };
-
   window.delWish = function(e, id) {
-    if (e && e.stopPropagation) e.stopPropagation();
-    wishes = wishes.filter(w => w.id !== id);
-    save();
-    renderWishlist();
+    e.stopPropagation(); wishes = wishes.filter(item => item.id !== id); save(); renderWishlist();
   };
 
   function renderWishlist() {
-    const listEl = document.getElementById('wish-list');
-    if (wishes.length === 0) {
-      listEl.innerHTML = `
-        <div class="empty-state" style="padding:30px 10px">
-          <div class="empty-icon">🎈</div>
-          <div class="empty-text">许个愿吧</div>
-          <div class="empty-sub">写下你们未来想一起携手去的地方</div>
-        </div>`;
-      return;
-    }
-
-    listEl.innerHTML = wishes.map(w => `
-      <div class="wish-item" onclick="toggleWish('${w.id}')">
-        <div class="wish-heart">${w.done ? '💖' : '🤍'}</div>
-        <div class="wish-name ${w.done ? 'wish-done' : ''}">${w.name}</div>
-        <button class="wish-del" onclick="delWish(event, '${w.id}')">✕</button>
-      </div>
-    `).join('');
+    const container = document.getElementById('wish-list');
+    if(!wishes.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">🎈</div><div class="empty-text">许个愿吧</div></div>'; return; }
+    container.innerHTML = wishes.map(w => `<div class="wish-item" onclick="window.toggleWish('${w.id}')"><div class="wish-heart">${w.done?'💖':'🤍'}</div><div class="wish-name ${w.done?'wish-done':''}">${w.name}</div><button class="wish-del" onclick="window.delWish(event,'${w.id}')">✕</button></div>`).join('');
   }
 
-  // ─── STATS COUNTER UPDATE ───
   function updateStats() {
-    const totalCost = trips.reduce((sum, t) => sum + (t.expenses?.total || 0), 0);
-    const totalDays = trips.reduce((sum, t) => sum + (t.days || 1), 0);
-    const uniqueCities = new Set(trips.map(t => t.place.trim())).size;
-
     document.getElementById('s-trips').textContent = trips.length;
-    document.getElementById('s-cities').textContent = uniqueCities;
-    document.getElementById('s-total').textContent = '¥' + totalCost.toLocaleString('zh-CN', {maximumFractionDigits:0});
-    document.getElementById('s-days').textContent = totalDays;
+    document.getElementById('s-cities').textContent = new Set(trips.map(t => t.place)).size;
+    document.getElementById('s-total').textContent = '¥' + trips.reduce((sum, t) => sum + (t.expenses?.total || 0), 0);
   }
+
+  loadData(); renderMarkers(); renderTimeline(); renderWishlist(); updateStats();
 });
 </script>
 </body>

@@ -237,6 +237,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .empty-icon { font-size:36px; margin-bottom:12px; opacity:0.4; }
 .empty-text { font-size:13px; }
 
+@keyframes pulse-text { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
 @media (max-width: 600px) {
   .topbar { top:0; left:0; right:0; border-radius:0; height:60px; border-top:none; border-left:none; border-right:none; }
   .map-style-selector { display: none; } /* 移动端精简 */
@@ -572,129 +574,253 @@ window.addEventListener('load', function() {
     });
   };
 
+  // 【修复&补齐】图片预览与移除机制
   function renderPhotoPreviews() {
-    document.getElementById('photo-grid').innerHTML = pendingPhotos.map((src, i) => `
-      <div class="photo-thumb-wrap"><img src="${src}" class="photo-thumb"><button class="photo-rm" onclick="window.removePhoto(${i})">✕</button></div>
-    `).join('');
+    const grid = document.getElementById('photo-grid');
+    grid.innerHTML = '';
+    pendingPhotos.forEach((src, idx) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'photo-thumb-wrap';
+      wrap.innerHTML = `
+        <img src="${src}" class="photo-thumb">
+        <button class="photo-rm" onclick="window.removePendingPhoto(${idx})">✕</button>
+      `;
+      grid.appendChild(wrap);
+    });
   }
-  window.removePhoto = function(i) { pendingPhotos.splice(i,1); renderPhotoPreviews(); };
 
+  window.removePendingPhoto = function(idx) {
+    pendingPhotos.splice(idx, 1);
+    renderPhotoPreviews();
+  };
+
+  // 【增补机制】保存或修改打卡足迹
   window.saveTrip = function() {
     const place = document.getElementById('f-place').value.trim();
-    if (!place) { alert('请输入目的地 🌸'); return; }
-    
-    const transport = parseFloat(document.getElementById('f-transport').value) || 0;
-    const stay = parseFloat(document.getElementById('f-stay').value) || 0;
-    const food = parseFloat(document.getElementById('f-food').value) || 0;
-    const play = parseFloat(document.getElementById('f-play').value) || 0;
-    const other = parseFloat(document.getElementById('f-other').value) || 0;
-    const total = transport + stay + food + play + other;
-    
-    const finalLat = pendingLatLng?.lat || 34;
-    const finalLng = pendingLatLng?.lng || 105;
+    const startDate = document.getElementById('f-start').value;
+    const endDate = document.getElementById('f-end').value;
+    const note = document.getElementById('f-note').value;
 
-    const payload = {
-      place,
-      startDate: document.getElementById('f-start').value,
-      endDate: document.getElementById('f-end').value,
-      note: document.getElementById('f-note').value,
-      lat: finalLat, lng: finalLng,
-      expenses: { total, transport, stay, food, play, other },
-      photos: [...pendingPhotos]
+    if (!place) { alert('请输入目的地名称 ✨'); return; }
+    if (!pendingLatLng) { alert('请在地图上选点，或者等待目的地检索校准完成 📍'); return; }
+
+    const expenses = {
+      transport: parseFloat(document.getElementById('f-transport').value) || 0,
+      stay: parseFloat(document.getElementById('f-stay').value) || 0,
+      food: parseFloat(document.getElementById('f-food').value) || 0,
+      play: parseFloat(document.getElementById('f-play').value) || 0,
+      other: parseFloat(document.getElementById('f-other').value) || 0
     };
 
     if (editingTripId) {
-      const index = trips.findIndex(item => item.id === editingTripId);
-      if (index !== -1) trips[index] = { ...trips[index], ...payload };
-      editingTripId = null;
-    } else {
-      payload.id = 't_' + Date.now();
-      trips.push(payload);
-    }
-
-    save(); renderMarkers(); renderTimeline(); 
-    map.panTo([finalLat, finalLng]);
-    if (addMode) window.toggleAddMode();
-    window.closeAddModal();
-  };
-
-  window.openViewModal = function(id) {
-    const t = trips.find(item => item.id === id); if (!t) return;
-    document.getElementById('modal-view').classList.add('open');
-    
-    let photosHtml = '';
-    if (t.photos && t.photos.length > 0) {
-      photosHtml = `<div class="view-photo-grid">${t.photos.map(src => `<img src="${src}" class="view-photo-img" onclick="window.open('${src}')">`).join('')}</div>`;
-    }
-
-    document.getElementById('view-modal-body').innerHTML = `
-      ${t.photos?.[0] ? `<img src="${t.photos[0]}" class="view-hero">` : '<div class="view-hero-placeholder">🗺️</div>'}
-      <div class="view-title">${t.place}</div>
-      <div class="view-date">${t.startDate || '未限定日期'} ${t.endDate ? ` — ${t.endDate}` : ''}</div>
-      <div class="view-stat-row">
-        <div class="view-stat"><div class="view-stat-val">¥${(t.expenses?.total || 0).toLocaleString()}</div><div class="view-stat-label">花销合计</div></div>
-      </div>
-      <div class="view-note">${t.note || '暂无随笔感悟'}</div>
-      ${photosHtml}
-    `;
-
-    document.getElementById('view-delete-btn').onclick = () => {
-      if(confirm('确定要删除这段旅途映像吗？')) {
-        trips = trips.filter(item => item.id !== id); save(); renderMarkers(); renderTimeline(); window.closeViewModal();
+      const t = trips.find(item => item.id === editingTripId);
+      if (t) {
+        t.place = place; t.startDate = startDate; t.endDate = endDate;
+        t.note = note; t.expenses = expenses; t.photos = [...pendingPhotos];
+        t.lat = pendingLatLng.lat; t.lng = pendingLatLng.lng;
       }
-    };
+    } else {
+      const newTrip = {
+        id: Date.now().toString(),
+        place, startDate, endDate, note, expenses,
+        photos: [...pendingPhotos],
+        lat: pendingLatLng.lat, lng: pendingLatLng.lng
+      };
+      trips.push(newTrip);
+    }
 
-    document.getElementById('view-edit-btn').onclick = () => {
-      editingTripId = id;
-      window.closeViewModal();
-      window.openAddModal();
-    };
+    save();
+    renderMarkers();
+    renderTimeline();
+    window.closeAddModal();
+    if (addMode) window.toggleAddMode(); // 退出打卡模式
   };
 
+  // 【电影感爱心】绘制地图霓虹发光标记
   function renderMarkers() {
-    Object.values(markerMap).forEach(m => map.removeLayer(m));
+    // 移除已有标记
+    Object.keys(markerMap).forEach(id => map.removeLayer(markerMap[id]));
+    
     trips.forEach(t => {
-      // 更加惊艳的暗调发光电影感爱心气泡
-      const html = `<div class="heart-marker"><div class="heart-label">${t.place}</div><svg class="heart-svg" viewBox="0 0 36 36"><path d="M18 30.5s-14-8.8-14-19a9 9 0 0 1 14-7.5A9 9 0 0 1 32 11.5c0 10.2-14 19-14 19z" fill="#ff7da1" stroke="#ffffff" stroke-width="2.5"/></svg></div>`;
-      const m = L.marker([t.lat, t.lng], { icon: L.divIcon({ html, className: '', iconSize: [34, 56], iconAnchor: [17, 54] }) }).addTo(map);
+      const iconHtml = `
+        <div class="heart-marker">
+          <svg class="heart-svg" viewBox="0 0 32 32">
+            <path d="M16 28.5C16 28.5 2 20.5 2 11.5C2 6.5 6 3.5 10.5 3.5C13.5 3.5 15.5 5.5 16 6.5C16.5 5.5 18.5 3.5 21.5 3.5C26 3.5 30 6.5 30 11.5C30 20.5 16 28.5 16 28.5Z" fill="var(--accent-rose)"/>
+          </svg>
+          <div class="heart-label">${t.place}</div>
+        </div>
+      `;
+
+      const customIcon = L.divIcon({
+        html: iconHtml,
+        className: '',
+        iconSize: [34, 34],
+        iconAnchor: [17, 17]
+      });
+
+      const m = L.marker([t.lat, t.lng], { icon: customIcon }).addTo(map);
       m.on('click', () => window.openViewModal(t.id));
       markerMap[t.id] = m;
     });
   }
 
+  // 【优雅画册】查看与操作特定旅途章节
+  window.openViewModal = function(id) {
+    const t = trips.find(item => item.id === id);
+    if (!t) return;
+
+    document.getElementById('view-modal-title').textContent = "旅途映像";
+    const body = document.getElementById('view-modal-body');
+    
+    const totalExp = Object.values(t.expenses || {}).reduce((a, b) => a + b, 0);
+    const heroImg = t.photos && t.photos.length > 0 ? `<img src="${t.photos[0]}" class="view-hero">` : `<div class="view-hero-placeholder">🎬</div>`;
+
+    let photoGridHtml = '';
+    if (t.photos && t.photos.length > 0) {
+      photoGridHtml = `<div class="view-photo-grid">` + 
+        t.photos.map(p => `<img src="${p}" class="view-photo-img" onclick="window.previewHeroImage('${p}')">`).join('') + 
+        `</div>`;
+    }
+
+    body.innerHTML = `
+      ${heroImg}
+      <div class="view-title">${t.place}</div>
+      <div class="view-date">${t.startDate || '未知时间'} ${t.endDate ? '至 ' + t.endDate : ''}</div>
+      <div class="view-stat-row">
+        <div class="view-stat"><div class="view-stat-val">¥${totalExp.toLocaleString()}</div><div class="view-stat-label">总计花费</div></div>
+        <div class="view-stat"><div class="view-stat-val">${t.photos?.length || 0}张</div><div class="view-stat-label">珍藏影像</div></div>
+      </div>
+      ${t.note ? `<div class="view-note">${t.note.replace(/\n/g, '<br>')}</div>` : ''}
+      ${photoGridHtml}
+    `;
+
+    document.getElementById('view-delete-btn').onclick = () => window.deleteTrip(id);
+    document.getElementById('view-edit-btn').onclick = () => {
+      editingTripId = id;
+      window.closeViewModal();
+      window.openAddModal();
+    };
+
+    document.getElementById('modal-view').classList.add('open');
+  };
+
+  window.previewHeroImage = function(src) {
+    const hero = document.querySelector('.view-hero');
+    if (hero) hero.src = src;
+  };
+
+  window.deleteTrip = function(id) {
+    if (!confirm('确定要抹去这段珍贵的记忆足迹吗？')) return;
+    trips = trips.filter(item => item.id !== id);
+    save();
+    renderMarkers();
+    renderTimeline();
+    window.closeViewModal();
+  };
+
+  // 【艺术线条】渲染时光轴
   function renderTimeline() {
     const container = document.getElementById('tl-list');
-    if(!trips.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">✦</div><div class="empty-text">尚无记录，等待与你启航</div></div>'; return; }
-    container.innerHTML = trips.map(t => `<div class="tl-item" onclick="window.openViewModal('${t.id}')"><div class="tl-dot"></div><div class="tl-card"><div class="tl-name">📍 ${t.place}</div><div class="tl-date">${t.startDate || ''}</div></div></div>`).join('');
+    if (trips.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">⏳</div>
+          <div class="empty-text">时光长河中空空如也<br>期待落笔你们的第一个章节</div>
+        </div>`;
+      return;
+    }
+
+    // 按日期降序排列
+    const sorted = [...trips].sort((a, b) => new Date(b.startDate || 0) - new Date(a.startDate || 0));
+    container.innerHTML = '';
+    
+    sorted.forEach(t => {
+      const item = document.createElement('div');
+      item.className = 'tl-item';
+      item.onclick = () => {
+        map.flyTo([t.lat, t.lng], 7);
+        window.openViewModal(t.id);
+      };
+      item.innerHTML = `
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-name">${t.place}</div>
+          <div class="tl-date">${t.startDate || '未定日期'}</div>
+        </div>
+      `;
+      container.appendChild(item);
+    });
   }
 
+  // 【下一站】心愿清单模块
   window.addWish = function() {
-    const input = document.getElementById('wish-input'); if (!input.value.trim()) return;
-    wishes.push({ id: 'w_'+Date.now(), name: input.value.trim(), done: false });
-    input.value = ''; save(); renderWishlist();
+    const input = document.getElementById('wish-input');
+    const name = input.value.trim();
+    if (!name) return;
+
+    const wish = { id: Date.now().toString(), name, done: false };
+    wishes.push(wish);
+    input.value = '';
+    save();
+    renderWishlist();
   };
-  document.getElementById('wish-input').addEventListener('keydown', e => { if(e.key==='Enter') window.addWish(); });
 
   window.toggleWish = function(id) {
-    const w = wishes.find(item => item.id === id); if(w) { w.done = !w.done; save(); renderWishlist(); }
+    const w = wishes.find(item => item.id === id);
+    if (w) w.done = !w.done;
+    save();
+    renderWishlist();
   };
-  window.delWish = function(e, id) {
-    e.stopPropagation(); wishes = wishes.filter(item => item.id !== id); save(); renderWishlist();
+
+  window.deleteWish = function(id) {
+    wishes = wishes.filter(item => item.id !== id);
+    save();
+    renderWishlist();
   };
 
   function renderWishlist() {
     const container = document.getElementById('wish-list');
-    if(!wishes.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">✦</div><div class="empty-text">写下一个心愿</div></div>'; return; }
-    container.innerHTML = wishes.map(w => `<div class="wish-item" onclick="window.toggleWish('${w.id}')"><div class="wish-heart">${w.done?'✨':'🤍'}</div><div class="wish-name ${w.done?'wish-done':''}">${w.name}</div><button class="wish-del" onclick="window.delWish(event,'${w.id}')">✕</button></div>`).join('');
+    if (wishes.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">✨</div>
+          <div class="empty-text">暂无悄悄许下的目的地</div>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = '';
+    wishes.forEach(w => {
+      const item = document.createElement('div');
+      item.className = 'wish-item';
+      item.innerHTML = `
+        <span class="wish-heart" onclick="window.toggleWish('${w.id}')">${w.done ? '❤️' : '🤍'}</span>
+        <div class="wish-name ${w.done ? 'wish-done' : ''}">${w.name}</div>
+        <button class="wish-del" onclick="window.deleteWish('${w.id}')">删除</button>
+      `;
+      container.appendChild(item);
+    });
   }
 
+  // 【小药丸】更新看板统计数据
   function updateStats() {
     document.getElementById('s-trips').textContent = trips.length;
-    document.getElementById('s-cities').textContent = new Set(trips.map(t => t.place)).size;
-    document.getElementById('s-total').textContent = '¥' + trips.reduce((sum, t) => sum + (t.expenses?.total || 0), 0).toLocaleString();
+    
+    const uniqueCities = new Set(trips.map(t => t.place.split(/[市区县国]/)[0]));
+    document.getElementById('s-cities').textContent = trips.length > 0 ? uniqueCities.size : 0;
+
+    const totalCost = trips.reduce((sum, t) => {
+      return sum + Object.values(t.expenses || {}).reduce((a, b) => a + b, 0);
+    }, 0);
+    document.getElementById('s-total').textContent = '¥' + totalCost.toLocaleString();
   }
 
-  loadData(); renderMarkers(); renderTimeline(); renderWishlist(); updateStats();
+  // 终控室初始化
+  loadData();
+  updateStats();
+  renderMarkers();
+  renderTimeline();
+  renderWishlist();
 });
 </script>
 </body>

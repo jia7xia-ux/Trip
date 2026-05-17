@@ -43,7 +43,7 @@
       z-index: 1; pointer-events: none;
     }
 
-    /* --- 2. 顶栏布局 --- */
+    /* --- 2. 顶栏胶囊布局 --- */
     .topbar {
       position: fixed; top: 24px; left: 50%; transform: translateX(-50%); width: calc(100% - 48px); max-width: 1200px; height: 64px;
       background: var(--card-glass); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter);
@@ -63,7 +63,7 @@
       border-color: var(--border-med); color: #fff; background: linear-gradient(135deg, var(--accent-gold) 0%, #b39571 100%); box-shadow: 0 4px 12px rgba(195, 166, 131, 0.25);
     }
 
-    /* --- 3. 地图框架 --- */
+    /* --- 3. 地图框架布局 --- */
     .map-wrapper {
       position: absolute; inset: 0; z-index: 10; padding: 100px 40px 120px 40px; display: flex; justify-content: center; align-items: center;
     }
@@ -72,25 +72,57 @@
     }
     #map { width: 100%; height: 100%; background: #f7f3ec; }
 
-    /* =========================================================================
-       ✨ 彻底重构：法式轻奢珍珠微光标记样式 (解决密集恐惧、重合粘连问题)
-       ========================================================================= */
+    /* --- ✨ 珍珠微光标记样式群 (支持打卡频次光晕分级) --- */
     .creamy-marker-container {
-      background: transparent; border: none; width: 24px !important; height: 24px !important;
-      display: flex; align-items: center; justify-content: center;
+      background: transparent; border: none; width: 32px !important; height: 32px !important;
+      display: flex; align-items: center; justify-content: center; position: relative;
     }
-    /* 极细微光核心：珍珠点 */
+    
+    /* 核心白色微型珍珠点 */
     .pearl-dot {
       width: 10px; height: 10px; background: #ffffff; border: 2.5px solid var(--accent-gold); border-radius: 50%;
       position: relative; box-shadow: 0 2px 6px rgba(142, 128, 113, 0.3);
-      transition: all 0.3s var(--ease-apple); cursor: pointer;
+      transition: all 0.3s var(--ease-apple); cursor: pointer; z-index: 2;
     }
-    /* 周围淡淡的香槟金呼吸晕染 */
+    
+    /* 去过1次：标准轻透呼吸光晕 */
     .pearl-dot::before {
       content: ''; position: absolute; inset: -6px; border-radius: 50%;
       background: rgba(195, 166, 131, 0.12); animation: pearlBreath 3s infinite ease-in-out; pointer-events: none;
     }
-    /* 悬浮交互：荡开温润的浅桃粉涟漪 */
+    
+    /* 去过2~3次：叠加浅桃生椰粉呼吸环 */
+    .creamy-marker-container.visited-multiple .pearl-dot {
+      border-color: #dcb39b;
+    }
+    .creamy-marker-container.visited-multiple::after {
+      content: ''; position: absolute; width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(234, 180, 177, 0.25); border: 1px dashed rgba(234, 180, 177, 0.4);
+      z-index: 1; pointer-events: none; animation: pulseMultiple 4s infinite var(--ease-apple);
+    }
+    
+    /* 去过4次及以上：浓郁重度羁绊浪漫粉光圈 */
+    .creamy-marker-container.visited-heavy .pearl-dot {
+      border-color: #e0928e; box-shadow: 0 0 8px rgba(234, 180, 177, 0.5);
+    }
+    .creamy-marker-container.visited-heavy::after {
+      content: ''; position: absolute; width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(234, 180, 177, 0.35); border: 1px solid rgba(234, 180, 177, 0.5);
+      z-index: 1; pointer-events: none; animation: pulseMultiple 2.5s infinite var(--ease-apple);
+    }
+
+    /* 右上角法式香水吊牌数字微标 */
+    .marker-badge {
+      position: absolute; top: -2px; right: -2px;
+      background: linear-gradient(135deg, #eab4b1 0%, #df9995 100%);
+      color: #ffffff; font-family: var(--font-serif); font-size: 9px; font-weight: 600;
+      min-width: 14px; height: 14px; padding: 0 3px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid #ffffff; box-shadow: 0 2px 5px rgba(74, 65, 56, 0.15);
+      z-index: 3; pointer-events: none;
+    }
+
+    /* 悬浮交互：荡开温润涟漪 */
     .pearl-dot:hover {
       transform: scale(1.3); border-color: #e0928e; background: #fff;
       box-shadow: 0 0 12px rgba(234, 180, 177, 0.8);
@@ -99,6 +131,10 @@
     @keyframes pearlBreath {
       0%, 100% { transform: scale(0.9); opacity: 0.4; }
       50% { transform: scale(1.2); opacity: 1; }
+    }
+    @keyframes pulseMultiple {
+      0%, 100% { transform: scale(0.85); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 1; }
     }
 
     /* --- 4. 底部数据统计药丸 --- */
@@ -111,9 +147,12 @@
     .stat-label { font-size: 11px; color: var(--text-muted); letter-spacing: 1.5px; margin-bottom: 4px; font-weight: 500; }
     .stat-val { font-family: var(--font-serif); font-size: 20px; color: var(--text-primary); font-weight: 600; }
 
-    /* --- 5. 侧边面板 --- */
+    /* --- 5. 侧边滑出面板 --- */
     .side-panel {
-      position: fixed; top: 0; right: 0; width: 400px; height: 100vh; background: rgba(253, 251, 247, 0.85); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); border-left: 1px solid var(--border-light); z-index: 950; transform: translateX(100%); transition: transform 0.6s var(--ease-apple); padding: 100px 32px 40px 32px; display: flex; flex-direction: column;
+      position: fixed; top: 0; right: 0; width: 400px; height: 100vh;
+      background: rgba(253, 251, 247, 0.85); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter);
+      border-left: 1px solid var(--border-light); z-index: 950; transform: translateX(100%); transition: transform 0.6s var(--ease-apple);
+      padding: 100px 32px 40px 32px; display: flex; flex-direction: column;
     }
     .side-panel.open { transform: translateX(0); box-shadow: -15px 0 40px rgba(163, 145, 126, 0.1); }
     .panel-title { font-family: var(--font-serif); font-size: 22px; color: var(--text-primary); font-weight: 400; margin-bottom: 32px; letter-spacing: 1px; }
@@ -138,7 +177,7 @@
     .wish-text.done { color: var(--text-muted); text-decoration: line-through; opacity: 0.5; }
     .wish-cb { width: 18px; height: 18px; accent-color: var(--accent-gold); cursor: pointer; }
 
-    /* --- 6. 双栏弹窗 --- */
+    /* --- 6. 双栏深度大弹窗 --- */
     .modal {
       display: none; position: fixed; inset: 0; background: rgba(74, 65, 56, 0.2); backdrop-filter: blur(15px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;
     }
@@ -156,6 +195,7 @@
     .form-input { width: 100%; background: #ffffff; border: 1px solid var(--border-light); border-radius: 12px; padding: 12px; color: var(--text-primary); font-size: 13px; transition: all 0.3s; }
     .form-input:focus { outline: none; border-color: var(--accent-gold); box-shadow: 0 0 8px rgba(195,166,131,0.2); }
     
+    /* 记账网络格 */
     .expense-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
     .exp-box { background: #ffffff; border: 1px solid var(--border-light); border-radius: 10px; padding: 10px; text-align: center; }
     .exp-label { font-size: 11px; color: var(--text-muted); }
@@ -197,464 +237,3 @@
       <div id="map"></div>
     </div>
   </div>
-
-  <div class="stats-pill">
-    <div class="stat-item">
-      <div class="stat-label">EXPLORED CITIES</div>
-      <div class="stat-val" id="stat-cities">0</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">TOTAL JOURNEYS</div>
-      <div class="stat-val" id="stat-trips">0</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">MUTUAL BUDGET</div>
-      <div class="stat-val" id="stat-budget">¥0</div>
-    </div>
-  </div>
-
-  <div class="side-panel" id="side-panel">
-    <div id="panel-content-timeline" style="display:none; flex-direction:column; height:100%;">
-      <h3 class="panel-title">时光叙事轴</h3>
-      <div class="timeline-container" id="timeline-list"></div>
-    </div>
-    <div id="panel-content-wish" style="display:none; flex-direction:column; height:100%;">
-      <h3 class="panel-title">下一站心愿</h3>
-      <div class="wish-input-box">
-        <input type="text" id="input-wish" class="form-input" placeholder="输入浪漫目的地..." style="flex:1;">
-        <button class="nav-btn active" onclick="addWish()" style="padding:0 16px;">添加</button>
-      </div>
-      <div class="wish-list" id="wish-container"></div>
-    </div>
-  </div>
-
-  <div class="modal" id="main-modal">
-    <div class="modal-content">
-      <button class="modal-close-btn" onclick="closeModal()">×</button>
-      
-      <div class="modal-left">
-        <h3 style="font-family: var(--font-serif); font-size: 18px; color: var(--text-primary); margin-bottom: 20px; font-weight: 400;">封存新映像</h3>
-        
-        <div style="background: rgba(195, 166, 131, 0.05); border: 1px dashed var(--border-med); padding: 14px; margin-bottom: 16px; position: relative; border-radius: 12px;">
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div>
-              <div style="font-size: 12px; color: var(--text-primary); font-weight:600;">AI 票据智能校准</div>
-              <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">解析截图并自动填报开销与明细</div>
-            </div>
-            <button type="button" class="nav-btn active" style="font-size: 11px; padding: 4px 12px;" onclick="document.getElementById('ai-file').click()">导入凭证</button>
-          </div>
-          <input type="file" id="ai-file" accept="image/*" style="display:none;" onchange="simulateAIScan()">
-          <div id="ai-loading" style="position: absolute; inset: 0; background: #faf6ee; display: none; align-items: center; justify-content: center; font-size: 11px; color: var(--accent-gold); font-family: var(--font-serif); letter-spacing: 1px; font-weight:600;">PARSING BILL STRUCTURE...</div>
-        </div>
-
-        <form id="trip-form" onsubmit="saveTripData(event)">
-          <input type="hidden" id="field-id">
-          <div class="form-group">
-            <label class="form-label">目的地 (失焦自动校准坐标)</label>
-            <input type="text" id="field-place" class="form-input" required placeholder="例如：大理古城" onblur="geoLookup()">
-          </div>
-          <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div>
-              <label class="form-label">启程日期</label>
-              <input type="date" id="field-start" class="form-input" required>
-            </div>
-            <div>
-              <label class="form-label">归期</label>
-              <input type="date" id="field-end" class="form-input" required>
-            </div>
-          </div>
-          <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div>
-              <label class="form-label">LAT (纬度)</label>
-              <input type="number" step="0.000001" id="field-lat" class="form-input" required>
-            </div>
-            <div>
-              <label class="form-label">LNG (经度)</label>
-              <input type="number" step="0.000001" id="field-lng" class="form-input" required>
-            </div>
-          </div>
-          
-          <div class="form-group" style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
-            <div>
-              <label class="form-label">🏨 浪漫下榻 (酒店/民宿)</label>
-              <input type="text" id="field-hotel" class="form-input" placeholder="例如：阿凯萨公馆">
-            </div>
-            <div>
-              <label class="form-label">推荐指数</label>
-              <input type="text" id="field-hotel-rating" class="form-input" placeholder="💖 5星">
-            </div>
-          </div>
-
-          <button type="submit" class="btn-action">将这段岁月归档</button>
-        </form>
-      </div>
-
-      <div class="modal-right">
-        <div class="form-group">
-          <label class="form-label">🍽️ 舌尖记忆 (品尝过的难忘美食)</label>
-          <input type="text" id="field-food-spots" class="form-input" placeholder="例如：野生菌火锅、喜洲粑粑 (用逗号隔开)">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">消费明细账目 (CNY)</label>
-          <div class="expense-grid">
-            <div class="exp-box"><div class="exp-label">交通</div><input type="number" id="exp-transport" class="exp-input" value="0"></div>
-            <div class="exp-box"><div class="exp-label">住宿</div><input type="number" id="exp-stay" class="exp-input" value="0"></div>
-            <div class="exp-box"><div class="exp-label">餐饮</div><input type="number" id="exp-food" class="exp-input" value="0"></div>
-            <div class="exp-box"><div class="exp-label">游玩</div><input type="number" id="exp-play" class="exp-input" value="0"></div>
-            <div class="exp-box"><div class="exp-label">其他</div><input type="number" id="exp-other" class="exp-input" value="0"></div>
-            <div class="exp-box" style="background: rgba(195,166,131,0.1); border-color: var(--border-med);"><div class="exp-label" style="color:var(--text-primary); font-weight:600;">总额</div><div id="exp-total-display" style="font-family:var(--font-serif); font-size:15px; color:var(--text-primary); margin-top:2px; font-weight:600;">0</div></div>
-          </div>
-        </div>
-
-        <div class="form-group" style="margin-top: 18px;">
-          <label class="form-label">独家独白随笔</label>
-          <textarea id="field-note" class="form-input" rows="3" style="resize: none; height: 65px;" placeholder="记下属于你们这一刻的独特细节..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">影集胶片墙</label>
-          <div id="view-hero-area"></div>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <button type="button" class="nav-btn" style="font-size: 11px; padding: 6px 14px; border-color: var(--border-med); color: var(--text-primary);" onclick="document.getElementById('photo-file').click()">＋ 载入影集图片</button>
-            <input type="file" id="photo-file" accept="image/*" style="display:none;" onchange="handlePhotoUpload(event)">
-          </div>
-          <div class="photo-scroller" id="photo-preview-box"></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    const STORAGE_TRIPS_KEY = 'cwt_trips_v2';
-    const STORAGE_WISHES_KEY = 'cwt_wishes_v1';
-
-    let globalTrips = [];
-    let globalWishes = [];
-    let mapEngine;
-    let mapMarkers = [];
-    let currentActivePanel = null;
-    let isAdd足迹Mode = false;
-    let currentUploadedPhotos = [];
-
-    window.onload = function() {
-      loadStorageData();
-      initVisualMap();
-      calculateDashboardStats();
-      setupExpenseListener();
-    };
-
-    function loadStorageData() {
-      globalTrips = JSON.parse(localStorage.getItem(STORAGE_TRIPS_KEY)) || [];
-      globalWishes = JSON.parse(localStorage.getItem(STORAGE_WISHES_KEY)) || [];
-    }
-
-    function saveTripsState() {
-      localStorage.setItem(STORAGE_TRIPS_KEY, JSON.stringify(globalTrips));
-      calculateDashboardStats();
-      renderVisualMarkers();
-      if(currentActivePanel === 'timeline') renderTimeline();
-    }
-
-    function saveWishesState() {
-      localStorage.setItem(STORAGE_WISHES_KEY, JSON.stringify(globalWishes));
-      if(currentActivePanel === 'wish') renderWishes();
-    }
-
-    function initVisualMap() {
-      mapEngine = L.map('map', { zoomControl: false, attributionControl: false }).setView([12.00, 108.00], 4);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(mapEngine);
-
-      mapEngine.on('click', function(e) {
-        if (!isAdd足迹Mode) return;
-        openCreateModalFromMap(e.latlng.lat, e.latlng.lng);
-      });
-      renderVisualMarkers();
-    }
-
-    /* =========================================================================
-       ✨ 核心修改：以极致精细的珍珠圆点渲染打卡坐标，告别重合色块
-       ========================================================================= */
-    function renderVisualMarkers() {
-      mapMarkers.forEach(m => mapEngine.removeLayer(m));
-      mapMarkers = [];
-
-      globalTrips.forEach(trip => {
-        if (!trip.lat || !trip.lng) return;
-        
-        // 珍珠质感小圆点组件结构
-        const customIcon = L.divIcon({
-          className: 'creamy-marker-container',
-          html: `<div class="pearl-dot" onclick="openDetailView('${trip.id}')"></div>`,
-          iconSize: [24, 24],
-          iconAnchor: [12, 12]
-        });
-        
-        const marker = L.marker([trip.lat, trip.lng], { icon: customIcon }).addTo(mapEngine);
-        mapMarkers.push(marker);
-      });
-    }
-
-    function calculateDashboardStats() {
-      document.getElementById('stat-trips').innerText = globalTrips.length;
-      const uniqueCities = new Set(globalTrips.map(t => t.place.trim()));
-      document.getElementById('stat-cities').innerText = uniqueCities.size;
-
-      let grandTotal = 0;
-      globalTrips.forEach(t => {
-        if (t.expenses && t.expenses.total) grandTotal += parseFloat(t.expenses.total);
-      });
-      document.getElementById('stat-budget').innerText = '¥' + grandTotal.toLocaleString();
-    }
-
-    function togglePanel(type) {
-      const panel = document.getElementById('side-panel');
-      const btnTimeline = document.getElementById('btn-timeline');
-      const btnWish = document.getElementById('btn-wish');
-
-      if (currentActivePanel === type) {
-        panel.classList.remove('open');
-        btnTimeline.classList.remove('active');
-        btnWish.classList.remove('active');
-        currentActivePanel = null;
-      } else {
-        panel.classList.add('open');
-        document.getElementById('panel-content-timeline').style.display = type === 'timeline' ? 'flex' : 'none';
-        document.getElementById('panel-content-wish').style.display = type === 'wish' ? 'flex' : 'none';
-        btnTimeline.classList.toggle('active', type === 'timeline');
-        btnWish.classList.toggle('active', type === 'wish');
-        currentActivePanel = type;
-        if (type === 'timeline') renderTimeline();
-        if (type === 'wish') renderWishes();
-      }
-    }
-
-    function renderTimeline() {
-      const container = document.getElementById('timeline-list');
-      container.innerHTML = '';
-      const sorted = [...globalTrips].sort((a,b) => new Date(b.startDate) - new Date(a.startDate));
-      if(sorted.length === 0) {
-        container.innerHTML = `<div style="color:var(--text-muted); font-size:12px; font-style:italic;">暂无脚印...</div>`;
-        return;
-      }
-      sorted.forEach(t => {
-        const item = document.createElement('div');
-        item.className = 'timeline-item';
-        item.onclick = () => openDetailView(t.id);
-        item.innerHTML = `
-          <div class="tl-date">${t.startDate}</div>
-          <div class="tl-name">${t.place}</div>
-        `;
-        container.appendChild(item);
-      });
-    }
-
-    function renderWishes() {
-      const container = document.getElementById('wish-container');
-      container.innerHTML = '';
-      if(globalWishes.length === 0) {
-        container.innerHTML = `<div style="color:var(--text-muted); font-size:12px; font-style:italic;">还没有写下心愿清单哦...</div>`;
-        return;
-      }
-      globalWishes.forEach(w => {
-        const item = document.createElement('div');
-        item.className = 'wish-item';
-        item.innerHTML = `
-          <span class="wish-text ${w.done ? 'done' : ''}">${w.name}</span>
-          <input type="checkbox" class="wish-cb" ${w.done ? 'checked' : ''} onchange="toggleWishStatus('${w.id}', this.checked)">
-        `;
-        container.appendChild(item);
-      });
-    }
-
-    function addWish() {
-      const input = document.getElementById('input-wish');
-      const val = input.value.trim();
-      if(!val) return;
-      globalWishes.push({ id: 'w_' + Date.now(), name: val, done: false });
-      input.value = '';
-      saveWishesState();
-    }
-
-    function toggleWishStatus(id, isChecked) {
-      const wish = globalWishes.find(w => w.id === id);
-      if(wish) { wish.done = isChecked; saveWishesState(); }
-    }
-
-    function toggleAddMode() {
-      isAdd足迹Mode = !isAdd足迹Mode;
-      const btn = document.getElementById('btn-mode-add');
-      const alertBar = document.getElementById('mode-alert');
-      if(isAdd足迹Mode) {
-        btn.classList.add('active'); alertBar.classList.add('show');
-      } else {
-        btn.classList.remove('active'); alertBar.classList.remove('show');
-      }
-    }
-
-    function openCreateModalFromMap(lat, lng) {
-      document.getElementById('trip-form').reset();
-      document.getElementById('field-id').value = '';
-      document.getElementById('field-lat').value = lat.toFixed(6);
-      document.getElementById('field-lng').value = lng.toFixed(6);
-      document.getElementById('field-hotel').value = '';
-      document.getElementById('field-hotel-rating').value = '';
-      document.getElementById('field-food-spots').value = '';
-      currentUploadedPhotos = [];
-      renderPhotoPreviews();
-      resetExpensesField();
-      toggleAddMode();
-      document.getElementById('main-modal').classList.add('open');
-    }
-
-    function openDetailView(id) {
-      const trip = globalTrips.find(t => t.id === id);
-      if(!trip) return;
-
-      document.getElementById('field-id').value = trip.id;
-      document.getElementById('field-place').value = trip.place;
-      document.getElementById('field-start').value = trip.startDate;
-      document.getElementById('field-end').value = trip.endDate;
-      document.getElementById('field-lat').value = trip.lat;
-      document.getElementById('field-lng').value = trip.lng;
-      document.getElementById('field-note').value = trip.note || '';
-      
-      document.getElementById('field-hotel').value = trip.hotel || '';
-      document.getElementById('field-hotel-rating').value = trip.hotelRating || '';
-      document.getElementById('field-food-spots').value = trip.foodSpots || '';
-
-      const exp = trip.expenses || {};
-      document.getElementById('exp-transport').value = exp.transport || 0;
-      document.getElementById('exp-stay').value = exp.stay || 0;
-      document.getElementById('exp-food').value = exp.food || 0;
-      document.getElementById('exp-play').value = exp.play || 0;
-      document.getElementById('exp-other').value = exp.other || 0;
-      updateExpenseTotal();
-
-      currentUploadedPhotos = trip.photos || [];
-      renderPhotoPreviews();
-      document.getElementById('main-modal').classList.add('open');
-    }
-
-    function closeModal() { document.getElementById('main-modal').classList.remove('open'); }
-
-    function saveTripData(e) {
-      e.preventDefault();
-      const id = document.getElementById('field-id').value;
-      const place = document.getElementById('field-place').value.trim();
-      const startDate = document.getElementById('field-start').value;
-      const endDate = document.getElementById('field-end').value;
-      const lat = parseFloat(document.getElementById('field-lat').value);
-      const lng = parseFloat(document.getElementById('field-lng').value);
-      const note = document.getElementById('field-note').value;
-      
-      const hotel = document.getElementById('field-hotel').value.trim();
-      const hotelRating = document.getElementById('field-hotel-rating').value.trim();
-      const foodSpots = document.getElementById('field-food-spots').value.trim();
-
-      const transport = parseFloat(document.getElementById('exp-transport').value) || 0;
-      const stay = parseFloat(document.getElementById('exp-stay').value) || 0;
-      const food = parseFloat(document.getElementById('exp-food').value) || 0;
-      const play = parseFloat(document.getElementById('exp-play').value) || 0;
-      const other = parseFloat(document.getElementById('exp-other').value) || 0;
-      const total = transport + stay + food + play + other;
-
-      const expenseObj = { total, transport, stay, food, play, other };
-
-      if(id) {
-        const idx = globalTrips.findIndex(t => t.id === id);
-        if(idx !== -1) {
-          globalTrips[idx] = { 
-            ...globalTrips[idx], place, startDate, endDate, lat, lng, note, hotel, hotelRating, foodSpots, expenses: expenseObj, photos: currentUploadedPhotos 
-          };
-        }
-      } else {
-        const newTrip = { 
-          id: 't_' + Date.now(), place, startDate, endDate, lat, lng, note, hotel, hotelRating, foodSpots, expenses: expenseObj, photos: currentUploadedPhotos 
-        };
-        globalTrips.unshift(newTrip);
-        mapEngine.panTo([lat, lng]);
-      }
-      saveTripsState();
-      closeModal();
-    }
-
-    function geoLookup() {
-      const place = document.getElementById('field-place').value.trim();
-      if(!place) return;
-      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(place)}&limit=1`)
-        .then(res => res.json())
-        .then(data => {
-          if(data && data.length > 0) {
-            document.getElementById('field-lat').value = parseFloat(data[0].lat).toFixed(6);
-            document.getElementById('field-lng').value = parseFloat(data[0].lon).toFixed(6);
-          }
-        });
-    }
-
-    function handlePhotoUpload(event) {
-      const files = event.target.files;
-      if(!files || files.length === 0) return;
-      const reader = new FileReader();
-      reader.onload = function(e) { currentUploadedPhotos.push(e.target.result); renderPhotoPreviews(); };
-      reader.readAsDataURL(files[0]);
-    }
-
-    function renderPhotoPreviews() {
-      const previewBox = document.getElementById('photo-preview-box');
-      const heroArea = document.getElementById('view-hero-area');
-      previewBox.innerHTML = '';
-
-      if(currentUploadedPhotos.length > 0) {
-        heroArea.innerHTML = `<img src="${currentUploadedPhotos[0]}" style="width:100%; height:160px; object-fit:cover; border-radius:16px; margin-bottom:20px; border:1px solid var(--border-light);">`;
-        currentUploadedPhotos.forEach((imgSrc) => {
-          const img = document.createElement('img'); img.className = 'photo-thumb'; img.src = imgSrc;
-          img.onclick = () => { heroArea.innerHTML = `<img src="${imgSrc}" style="width:100%; height:160px; object-fit:cover; border-radius:16px; margin-bottom:20px; border:1px solid var(--border-light);">`; };
-          previewBox.appendChild(img);
-        });
-      } else {
-        heroArea.innerHTML = `
-          <div class="view-hero-placeholder">
-             <span style="font-family: var(--font-serif); font-size: 11px; color: var(--text-muted); letter-spacing: 3px; font-weight: 400;">CREAMY MEMORY</span>
-             <span style="width: 20px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent-gold), transparent); margin-top: 8px;"></span>
-          </div>`;
-      }
-    }
-
-    function setupExpenseListener() {
-      ['exp-transport', 'exp-stay', 'exp-food', 'exp-play', 'exp-other'].forEach(id => { document.getElementById(id).addEventListener('input', updateExpenseTotal); });
-    }
-
-    function updateExpenseTotal() {
-      const transport = parseFloat(document.getElementById('exp-transport').value) || 0;
-      const stay = parseFloat(document.getElementById('exp-stay').value) || 0;
-      const food = parseFloat(document.getElementById('exp-food').value) || 0;
-      const play = parseFloat(document.getElementById('exp-play').value) || 0;
-      const other = parseFloat(document.getElementById('exp-other').value) || 0;
-      document.getElementById('exp-total-display').innerText = (transport + stay + food + play + other).toFixed(0);
-    }
-
-    function resetExpensesField() {
-      ['exp-transport', 'exp-stay', 'exp-food', 'exp-play', 'exp-other'].forEach(id => { document.getElementById(id).value = 0; });
-      document.getElementById('exp-total-display').innerText = '0';
-    }
-
-    function simulateAIScan() {
-      const loader = document.getElementById('ai-loading'); loader.style.display = 'flex';
-      setTimeout(() => {
-        loader.style.display = 'none';
-        document.getElementById('field-place').value = '新加坡';
-        document.getElementById('field-start').value = '2026-05-15';
-        document.getElementById('field-end').value = '2026-05-18';
-        document.getElementById('field-hotel').value = '滨海湾金沙酒店';
-        document.getElementById('field-hotel-rating').value = '💖 5星推荐';
-        document.getElementById('field-food-spots').value = '天天海南鸡饭、松发肉骨茶';
-        document.getElementById('exp-transport').value = 2400; document.getElementById('exp-stay').value = 4500; document.getElementById('exp-food').value = 1200;
-        updateExpenseTotal(); geoLookup();
-      }, 1200);
-    }
-  </script>
-</body>
-</html>

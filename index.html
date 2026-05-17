@@ -269,9 +269,21 @@ window.addEventListener('load', function() {
   const markerMap = {};
 
   // 地图初始化
-  const map = L.map('map', { center: [30, 105], zoom: 4, zoomControl: false, attributionControl: false });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png').addTo(map);
-  document.getElementById('map').classList.add('browse-mode');
+  // 修改后：限制缩放、禁止平铺，并设定边界
+const map = L.map('map', { 
+  center: [30, 105], 
+  zoom: 4, 
+  minZoom: 2,                     // 1. 限制最小缩放级别，防止缩得太小留下太多空白
+  zoomControl: false, 
+  attributionControl: false,
+  maxBounds: [[-90, -180], [90, 180]], // 2. 限制地图的最大拖拽边界（刚好是一个地球的经纬度）
+  maxBoundsViscosity: 1.0         // 3. 边界粘性，设为 1.0 可以完全硬性卡住，不让用户拖出世界范围之外
+});
+
+// 在加载底图瓦片时，加上 noWrap: true 参数阻止其水平复制
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+  noWrap: true                    // 4. 核心：禁止瓦片地图在水平方向上无限循环平铺
+}).addTo(map);
 
   map.on('click', e => {
     if (!addMode) return;

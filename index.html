@@ -473,4 +473,26 @@ window.addEventListener('load', function() {
   document.getElementById('wish-input').addEventListener('keydown', e => { if(e.key==='Enter') window.addWish(); });
 
   window.toggleWish = function(id) {
-    const w = wishes.find(item => item.id === id); if(w) { w.done = !w.done; save(); render
+    const w = wishes.find(item => item.id === id); if(w) { w.done = !w.done; save(); renderWishlist(); }
+  };
+  window.delWish = function(e, id) {
+    e.stopPropagation(); wishes = wishes.filter(item => item.id !== id); save(); renderWishlist();
+  };
+
+  function renderWishlist() {
+    const container = document.getElementById('wish-list');
+    if(!wishes.length) { container.innerHTML = '<div class="empty-state"><div class="empty-icon">🎈</div><div class="empty-text">许个愿吧</div></div>'; return; }
+    container.innerHTML = wishes.map(w => `<div class="wish-item" onclick="window.toggleWish('${w.id}')"><div class="wish-heart">${w.done?'💖':'🤍'}</div><div class="wish-name ${w.done?'wish-done':''}">${w.name}</div><button class="wish-del" onclick="window.delWish(event,'${w.id}')">✕</button></div>`).join('');
+  }
+
+  function updateStats() {
+    document.getElementById('s-trips').textContent = trips.length;
+    document.getElementById('s-cities').textContent = new Set(trips.map(t => t.place)).size;
+    document.getElementById('s-total').textContent = '¥' + trips.reduce((sum, t) => sum + (t.expenses?.total || 0), 0);
+  }
+
+  loadData(); renderMarkers(); renderTimeline(); renderWishlist(); updateStats();
+});
+</script>
+</body>
+</html>

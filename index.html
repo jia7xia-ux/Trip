@@ -114,7 +114,6 @@ html, body {
 .modal-close { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--rose-light); color: var(--rose-deep); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; }
 .modal-body { padding: 20px 24px; }
 
-/* AI Scanner Banner Style */
 .ai-scanner-box {
   background: linear-gradient(135deg, #ede7f6 0%, var(--rose-pale) 100%);
   border: 1.5px dashed #7e57c2; border-radius: var(--r);
@@ -143,6 +142,12 @@ html, body {
 .expense-box { background: linear-gradient(135deg, var(--rose-pale), var(--peach-light)); border-radius: var(--r); padding: 14px; border: 1px dashed rgba(240,98,146,0.25); }
 .expense-total { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px dashed rgba(240,98,146,0.25); margin-top: 12px; }
 .expense-total-val { font-size: 20px; font-weight: 500; color: var(--rose-deep); font-family: 'Noto Serif SC', serif; }
+
+/* 地理编码小状态 */
+.geo-status { font-size: 11px; margin-top: 4px; display: block; min-height: 16px; }
+.geo-status.success { color: #2e7d32; }
+.geo-status.searching { color: #7e57c2; animation: pulse-text 1.5s infinite; }
+.geo-status.fail { color: #c62828; }
 
 .photo-drop { border: 2px dashed var(--rose); border-radius: var(--r); padding: 18px; text-align: center; cursor: pointer; background: var(--rose-pale); }
 .photo-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
@@ -191,7 +196,7 @@ html, body {
 <body>
 
 <div class="topbar">
-  <div class="logo"><span class="logo-anim">💕</span> Our World</div>
+  <div class="logo"><span class="logo-anim">💕</span> 我们的世界</div>
   <div class="topbar-actions">
     <button class="tb-btn tb-btn-ghost" id="btn-timeline" onclick="window.togglePanel('timeline')">🕐 <span class="tb-text">时光轴</span></button>
     <button class="tb-btn tb-btn-ghost" id="btn-wishlist" onclick="window.togglePanel('wishlist')">✨ <span class="tb-text">心愿清单</span></button>
@@ -199,7 +204,7 @@ html, body {
   </div>
 </div>
 
-<div class="mode-banner" id="mode-banner">📍 点击地图任意位置，标记足迹 ♡</div>
+<div class="mode-banner" id="mode-banner">📍 点击地图任意位置，标记你们的爱的足迹 ♡</div>
 <div id="map"></div>
 
 <div class="stats-pill">
@@ -211,12 +216,12 @@ html, body {
 </div>
 
 <div class="panel" id="panel-timeline">
-  <div class="panel-header"><div class="panel-title">🌸 Sweet Memory</div><div class="panel-sub">Chapter</div></div>
+  <div class="panel-header"><div class="panel-title">🌸 Sweet Memory</div><div class="panel-sub">时光轴章节记录</div></div>
   <div class="panel-body"><div class="tl-list" id="tl-list"></div></div>
 </div>
 
 <div class="panel" id="panel-wishlist">
-  <div class="panel-header"><div class="panel-title">✨ Wish list</div><div class="panel-sub">Awaiting</div></div>
+  <div class="panel-header"><div class="panel-title">✨ Wish list</div><div class="panel-sub">心愿目的地等待启航</div></div>
   <div class="panel-body">
     <div class="wish-input-row">
       <input type="text" class="wish-input" id="wish-input" placeholder="输入目的地后按回车...">
@@ -242,7 +247,12 @@ html, body {
         <div class="ai-scan-loading" id="ai-loading">🧠 AI 正在解析票据数据...</div>
       </div>
 
-      <div class="f-section"><label class="f-label">目的地 (识别有误可手动修改) 📍</label><input type="text" class="f-input" id="f-place" placeholder="例如：大理、丽江古城"></div>
+      <div class="f-section">
+        <label class="f-label">目的地 (支持中英文全球搜索，将自动识别地图位置) 📍</label>
+        <input type="text" class="f-input" id="f-place" placeholder="例如：北京环球影城、Paris、大理古城" onchange="window.fetchLocationCoords()">
+        <span class="geo-status" id="geo-status"></span>
+      </div>
+
       <div class="f-section"><div class="f-row"><div><label class="f-label">出发日期</label><input type="date" class="f-input" id="f-start"></div><div><label class="f-label">返程日期</label><input type="date" class="f-input" id="f-end"></div></div></div>
       
       <div class="f-section">
@@ -289,6 +299,7 @@ window.addEventListener('load', function() {
   let addMode = false;
   let pendingLatLng = null;
   let pendingPhotos = [];
+  let geoTimer = null;
   const markerMap = {};
 
   // 地图初始化：限制地图不重复平铺，限制缩放
@@ -352,6 +363,8 @@ window.addEventListener('load', function() {
     document.getElementById('f-end').value = ''; document.getElementById('f-note').value = '';
     document.getElementById('ai-file').value = '';
     document.getElementById('ai-loading').style.display = 'none';
+    const statusEl = document.getElementById('geo-status');
+    statusEl.className = 'geo-status'; statusEl.textContent = '';
     ['f-transport','f-stay','f-food','f-play','f-other'].forEach(id => document.getElementById(id).value = '');
     window.updateTotal(); document.getElementById('modal-add').classList.add('open');
   };
@@ -364,7 +377,40 @@ window.addEventListener('load', function() {
     document.getElementById('f-total').textContent = '¥' + total;
   };
 
-  // NEW: AI Smart Scan Frontend Logic (Mocked Engine)
+  // NEW: 全球地理编码反查地理位置功能
+  window.fetchLocationCoords = function() {
+    const name = document.getElementById('f-place').value.trim();
+    const statusEl = document.getElementById('geo-status');
+    if (!name) { statusEl.className = 'geo-status'; statusEl.textContent = ''; return; }
+
+    statusEl.className = 'geo-status searching';
+    statusEl.textContent = '🔍 正在地球仪上检索该地点的经纬度...';
+
+    // 引入开源免费且无需密钥的 OpenStreetMap Nominatim 地理查询引擎
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name)}&limit=1`;
+
+    fetch(url, { headers: { 'Accept-Language': 'zh-CN,zh;q=0.9' } })
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lon = parseFloat(data[0].lon);
+          // 覆盖并重新绑定为查到的真实精准位置
+          pendingLatLng = L.latLng(lat, lon);
+          statusEl.className = 'geo-status success';
+          statusEl.textContent = `📍 成功识别！已锁定位置：(经度:${lon.toFixed(2)}, 纬度:${lat.toFixed(2)})`;
+        } else {
+          statusEl.className = 'geo-status fail';
+          statusEl.textContent = '⚠️ 未搜索到精确位置，保存时将保留您的手动打卡点击位置。';
+        }
+      })
+      .catch(() => {
+        statusEl.className = 'geo-status fail';
+        statusEl.textContent = '⚠️ 网络连接有点开小差，地图无法查询坐标，将使用默认点击处。';
+      });
+  };
+
+  // AI 票据智能识别伪引擎
   window.triggerAIScan = function(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -372,37 +418,36 @@ window.addEventListener('load', function() {
     const loader = document.getElementById('ai-loading');
     loader.style.display = 'block';
 
-    // 先把这张截图作为旅途配图存下来
     const reader = new FileReader();
     reader.onload = function(ev) {
       pendingPhotos.push(ev.target.result);
       renderPhotoPreviews();
 
-      // 模拟AI分析延迟行为（1.5秒后自动识别填充）
       setTimeout(() => {
         loader.style.display = 'none';
         
-        // 智能模拟：随机生成几组像机票/酒店抠出来的数据，您可以自由调整测试
         const mockDataPool = [
-          { place: "三亚亚特兰蒂斯酒店", transport: 0, stay: 1899, note: "【AI智能填充】已为您识别并自动导入酒店确认单信息。如有差错，请在这里直接修改确认 ♡" },
           { place: "大理古城", transport: 1240, stay: 0, note: "【AI智能填充】已为您识别并自动导入机票/高铁行程单数据。请检查具体金额和日期是否吻合 ♡" },
+          { place: "巴黎埃菲尔铁塔", transport: 6800, stay: 1500, note: "【AI智能填充】已识别到您的跨国出游单据！世界很大，陪你走遍 ♡" },
           { place: "北京环球影城", transport: 450, stay: 680, note: "【AI智能填充】已成功识别门票预订和周边住宿订单数据 ♡" }
         ];
         const randomResult = mockDataPool[Math.floor(Math.random() * mockDataPool.length)];
 
-        // 自动填写到输入框中
         document.getElementById('f-place').value = randomResult.place;
         document.getElementById('f-transport').value = randomResult.transport;
         document.getElementById('f-stay').value = randomResult.stay;
         document.getElementById('f-note').value = randomResult.note;
         
-        // 自动获取当前的年月日作为初始日期
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('f-start').value = today;
 
         window.updateTotal();
-        alert("🤖 AI 票据识别成功！数据已智能填充，若有偏差请在下方表单直接手动修改。");
-      }, 1500);
+        
+        // 关键：AI 识别完目的地文字后，立刻自动去搜寻它的坐标！
+        window.fetchLocationCoords();
+        
+        alert("🤖 AI 票据识别成功！目的地已智能导入，正同步为您查询地图坐标。");
+      }, 1200);
     };
     reader.readAsDataURL(file);
   };
@@ -427,12 +472,18 @@ window.addEventListener('load', function() {
     if (!place) { alert('请输入目的地名称 🌸'); return; }
     const total = ['f-transport','f-stay','f-food','f-play','f-other'].reduce((sum, id) => sum + (parseFloat(document.getElementById(id).value)||0), 0);
     
+    const finalLat = pendingLatLng?.lat || 30;
+    const finalLng = pendingLatLng?.lng || 105;
+
     trips.push({
-      id: 't_' + Date.now(), lat: pendingLatLng?.lat || 30, lng: pendingLatLng?.lng || 105,
+      id: 't_' + Date.now(), lat: finalLat, lng: finalLng,
       place, startDate: document.getElementById('f-start').value, note: document.getElementById('f-note').value,
       expenses: { total }, photos: [...pendingPhotos]
     });
-    save(); renderMarkers(); renderTimeline(); window.toggleAddMode(); window.closeAddModal();
+    save(); renderMarkers(); renderTimeline(); 
+    // 让地图中心自动平滑地移到新打卡的城市正中央
+    map.panTo([finalLat, finalLng]);
+    window.toggleAddMode(); window.closeAddModal();
   };
 
   window.openViewModal = function(id) {

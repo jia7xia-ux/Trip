@@ -4,19 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>映像记忆</title>
+  
+  <!-- 引入原本系统的外部依赖：Leaflet 地图与 Google 衬线字体 -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Noto+Serif+SC:wght@300;400;600&display=swap" rel="stylesheet">
+  
   <style>
-    /* 核心奢华黑金意象美学变量 */
+    /* 原有核心奢华黑金意象美学变量 */
     :root {
       --bg-dark: #0f0d0e;
       --card-dark: #151314;
       --accent-gold: #dfba8c;
       --text-primary: #f2f0f0;
-      --text-light: #8e8a88;
+      --text-muted: #8e8a88;
       --border-light: rgba(223, 186, 140, 0.12);
       --border-med: rgba(223, 186, 140, 0.25);
       --glass-modal: rgba(21, 19, 20, 0.95);
       --font-serif: "Playfair Display", "Noto Serif SC", Georgia, serif;
-      --shadow-ambient: 0 20px 50px rgba(0,0,0,0.5);
+      --shadow-ambient: 0 20px 50px rgba(0,0,0,0.6);
     }
 
     body {
@@ -24,11 +29,30 @@
       color: var(--text-primary);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 24px;
     }
 
-    /* 触发弹窗的临时按钮样式 */
-    .demo-btn {
+    /* 原有系统核心布局与容器 */
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 16px;
+    }
+    .main-title {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      color: var(--accent-gold);
+      letter-spacing: 2px;
+      margin: 0;
+    }
+    .action-btn {
       background: transparent;
       border: 1px solid var(--border-med);
       color: var(--accent-gold);
@@ -37,20 +61,63 @@
       cursor: pointer;
       font-family: var(--font-serif);
       letter-spacing: 1px;
-      margin-right: 12px;
-      transition: all 0.3s ease;
+      transition: all 0.3s;
     }
-    .demo-btn:hover {
+    .action-btn:hover {
       background: var(--accent-gold);
       color: var(--bg-dark);
     }
 
-    /* 弹窗基础样式 */
+    /* 地图组件容器 */
+    .map-section {
+      border: 1px solid var(--border-light);
+      border-radius: 24px;
+      overflow: hidden;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-ambient);
+    }
+    #map {
+      width: 100%;
+      height: 420px;
+      background: #100f10;
+    }
+
+    /* 数据看板与卡片 */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .memory-card {
+      background: var(--card-dark);
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      padding: 24px;
+      cursor: pointer;
+      transition: transform 0.3s elements, border-color 0.3s;
+    }
+    .memory-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-med);
+    }
+    .card-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      color: var(--accent-gold);
+      margin: 0 0 12px 0;
+    }
+
+    /* 弹窗基础控制 */
     .modal {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(10, 9, 9, 0.85);
+      background: rgba(10, 9, 9, 0.88);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       z-index: 1000;
@@ -63,7 +130,9 @@
       border: 1px solid var(--border-light);
       border-radius: 24px;
       width: 100%;
-      max-width: 460px;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
       padding: 32px;
       box-shadow: var(--shadow-ambient);
       box-sizing: border-box;
@@ -75,55 +144,93 @@
       right: 24px;
       background: none;
       border: none;
-      color: var(--text-light);
-      font-size: 20px;
+      color: var(--text-muted);
+      font-size: 22px;
       cursor: pointer;
     }
 
-    /* 弹窗内表单与基础元素的微调 */
-    .modal-title {
-      font-family: var(--font-serif);
-      font-size: 20px;
-      color: var(--accent-gold);
-      font-weight: 300;
-      letter-spacing: 1px;
-      margin-top: 0;
-      margin-bottom: 24px;
+    /* 表单组件样式 */
+    .form-group {
+      margin-bottom: 20px;
     }
-    .ai-scan-btn {
+    .form-label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .form-input {
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 12px;
+      color: var(--text-primary);
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--border-med);
+    }
+    .submit-btn {
+      width: 100%;
+      background: var(--accent-gold);
+      color: var(--bg-dark);
+      border: none;
+      padding: 14px;
+      border-radius: 30px;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.3s ease;
+      font-size: 14px;
+      letter-spacing: 1px;
+      margin-top: 12px;
     }
-    .ai-scan-btn:hover {
-      background: rgba(223, 186, 140, 0.1) !important;
-    }
+
+    /* 映像展示组件 */
     .view-hero {
       width: 100%;
-      height: 200px;
+      height: 220px;
       object-fit: cover;
       border-radius: 18px;
       margin-bottom: 24px;
     }
-    .view-details {
+    .view-desc-text {
       font-size: 14px;
-      color: var(--text-light);
-      line-height: 1.6;
+      color: var(--text-primary);
+      line-height: 1.8;
+      font-weight: 300;
     }
   </style>
 </head>
 <body>
 
-  <!-- 演示触发按钮 -->
-  <button class="demo-btn" onclick="openAddModal()">＋ 记录新篇章</button>
-  <button class="demo-btn" onclick="triggerViewModalDemo()">🎬 查看映像封面</button>
+  <div class="app-container">
+    <!-- 原有顶部导航 -->
+    <div class="header-bar">
+      <h1 class="main-title">映像记忆 · 光影空间</h1>
+      <button class="action-btn" onclick="openAddModal()">＋ 记录新篇章</button>
+    </div>
+
+    <!-- 核心保留：系统原始地图功能载体 -->
+    <div class="map-section">
+      <div id="map"></div>
+    </div>
+
+    <!-- 原有数据列表动态渲染仓 -->
+    <div class="dashboard-grid" id="memory-list">
+      <!-- 动态数据通过底层 JS 渲染 -->
+    </div>
+  </div>
 
   <!-- ================================================================= -->
-  <!-- 1. 记录新篇章弹窗 (包含高级感 AI 智能扫描仓) -->
+  <!-- 1. 原功能保留：记录新篇章弹窗 (已完美替换高级感 AI 扫描仓) -->
   <!-- ================================================================= -->
   <div class="modal" id="modal-add">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal('modal-add')">×</button>
-      <h3 class="modal-title">记录新篇章</h3>
+      <h3 style="font-family: var(--font-serif); font-size: 20px; color: var(--accent-gold); font-weight: 300; margin-top:0; margin-bottom:24px;">记录新篇章</h3>
       
       <!-- 高级留白电影质感 AI 票据智能扫描仓 -->
       <div class="ai-scanner-box" id="ai-scanner-container" style="background: linear-gradient(180deg, rgba(223,186,140,0.02) 0%, rgba(25,23,24,0) 100%); border: 1px dashed rgba(223, 186, 140, 0.25); padding: 20px; margin-bottom: 24px; position: relative; overflow: hidden; border-radius: 16px;">
@@ -131,39 +238,104 @@
           <div style="font-family: var(--font-serif); font-size: 20px; color: var(--accent-gold); font-weight: 300; letter-spacing: 1px;">AI</div>
           <div style="flex: 1; border-left: 1px solid rgba(223,186,140,0.15); padding-left: 16px;">
             <div style="font-size: 13px; font-weight: 400; color: var(--text-primary); letter-spacing: 0.5px;">票据智能校准</div>
-            <div style="font-size: 11px; color: var(--text-light); margin-top: 3px; font-weight: 300;">上传单据截图 · 智能转译经纬坐标与资产花费</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px; font-weight: 300;">上传单据截图 · 智能转译经纬坐标与资产花费</div>
           </div>
-          <button class="ai-scan-btn" style="background: transparent; border: 1px solid var(--border-med); color: var(--accent-gold); padding: 6px 16px; border-radius: 30px; letter-spacing: 0.5px; font-size: 12px;" onclick="document.getElementById('ai-file').click()">导入凭证</button>
+          <button type="button" style="background: transparent; border: 1px solid var(--border-med); color: var(--accent-gold); padding: 6px 16px; border-radius: 30px; letter-spacing: 0.5px; font-size: 12px; cursor: pointer;" onclick="document.getElementById('ai-file').click()">导入凭证</button>
         </div>
-        <input type="file" id="ai-file" accept="image/*" style="display:none" onchange="window.triggerAIScan(event)">
-        <div class="ai-scan-loading" id="ai-loading" style="position: absolute; inset: 0; background: var(--glass-modal); display: none; align-items: center; justify-content: center; font-size: 12px; color: var(--accent-gold); font-family: var(--font-serif); letter-spacing: 1px;">ANALYZING DATA STRUCTURE...</div>
+        <input type="file" id="ai-file" accept="image/*" style="display:none" onchange="handleAIScan(event)">
+        <div id="ai-loading" style="position: absolute; inset: 0; background: var(--glass-modal); display: none; align-items: center; justify-content: center; font-size: 12px; color: var(--accent-gold); font-family: var(--font-serif); letter-spacing: 1px;">ANALYZING DATA STRUCTURE...</div>
       </div>
 
-      <!-- 模拟其余表单项，保持整体和谐度 -->
-      <div style="font-size: 12px; color: var(--text-light); text-align: center; font-style: italic; opacity: 0.5;">- 基础表单字段占位 -</div>
+      <!-- 原功能表单项完整回归 -->
+      <form id="add-memory-form" onsubmit="saveMemory(event)">
+        <div class="form-group">
+          <label class="form-label">映像篇章名称</label>
+          <input type="text" id="form-title" class="form-input" required placeholder="如：南大湖畔的黄昏">
+        </div>
+        <div class="form-group">
+          <label class="form-label">经纬坐标 (格式: 纬度, 经度)</label>
+          <input type="text" id="form-coords" class="form-input" required placeholder="如：1.3483, 103.6831">
+        </div>
+        <div class="form-group">
+          <label class="form-label">时光叙事</label>
+          <textarea id="form-desc" class="form-input" rows="3" style="resize: none;" placeholder="记下这一刻的私密叙事..."></textarea>
+        </div>
+        <button type="submit" class="submit-btn">封存这段记忆</button>
+      </form>
     </div>
   </div>
 
   <!-- ================================================================= -->
-  <!-- 2. 查看映像弹窗 (通过 JS 动态渲染高级感纯黑占位封面) -->
+  <!-- 2. 原功能保留：查看映像弹窗 (完美重构无图时的极简黑金画册封面) -->
   <!-- ================================================================= -->
   <div class="modal" id="modal-view">
     <div class="modal-content">
       <button class="modal-close" onclick="closeModal('modal-view')">×</button>
-      <h3 class="modal-title" id="view-title">映像详情</h3>
-      <!-- 动态注入区域：如果有照片则显示照片，没有则显示下面 JS 中配置的极简黑金高光封面 -->
+      <h3 style="font-family: var(--font-serif); font-size: 20px; color: var(--accent-gold); font-weight: 300; margin-top:0; margin-bottom:24px;" id="view-title">映像详情</h3>
+      
+      <!-- 动态注入区域：有照片显示真图，没照片显示黑金高级感占位符 -->
       <div id="view-hero-area"></div>
-      <div class="view-details" id="view-desc">
-        这里是关于此段光影旅程的细节描摹...
-      </div>
+      
+      <div class="view-desc-text" id="view-desc"></div>
     </div>
   </div>
 
   <!-- ================================================================= -->
-  <!-- JavaScript 控制层 -->
+  <!-- 核心数据与业务逻辑层（地图初始化、原有卡片逻辑悉数回归） -->
   <!-- ================================================================= -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // 基础弹窗开关控制
+    // 原始数据库系统
+    let memories = [
+      { id: 1, title: "NTU 云顶漫步", coords: [1.3483, 103.6831], desc: "南大校园雨后的泥土清香，以及自习室窗外层叠延伸的云影。", photos: [] },
+      { id: 2, title: "滨海湾金沙落日", coords: [1.2823, 103.8584], desc: "海风轻拂下的海岸线，摩天大楼的玻璃幕墙上折射出碎金一般的光影。", photos: [] }
+    ];
+
+    let map;
+    let markers = [];
+
+    // 初始化原有地图核心组件 (使用具有高级黑金暗色底图源)
+    function initMap() {
+      map = L.map('map').setView([1.3521, 103.8198], 12);
+      
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CartoDB'
+      }).addTo(map);
+
+      renderMemories();
+    }
+
+    // 渲染原本系统的数据列表和地图图钉
+    function renderMemories() {
+      const listContainer = document.getElementById('memory-list');
+      listContainer.innerHTML = '';
+      
+      // 清除旧的地图图钉
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
+
+      memories.forEach(item => {
+        // 1. 创建卡片
+        const card = document.createElement('div');
+        card.className = 'memory-card';
+        card.onclick = () => openViewModal(item.id);
+        card.innerHTML = `
+          <div class="card-meta">GPS: ${item.coords[0]}, ${item.coords[1]}</div>
+          <h4 class="card-title">${item.title}</h4>
+          <div style="font-size:13px; color:var(--text-muted); line-height:1.5;">${item.desc.substring(0,35)}...</div>
+        `;
+        listContainer.appendChild(card);
+
+        // 2. 创建地图交互标记
+        const marker = L.marker(item.coords).addTo(map);
+        marker.bindPopup(`<b style="color:#000;">${item.title}</b>`).on('click', () => {
+          openViewModal(item.id);
+        });
+        markers.push(marker);
+      });
+    }
+
+    // 弹窗底层交互逻辑
     function openAddModal() {
       document.getElementById('modal-add').style.display = 'flex';
     }
@@ -171,42 +343,74 @@
       document.getElementById(id).style.display = 'none';
     }
 
-    // AI 扫描模拟触发
-    window.triggerAIScan = function(event) {
-      const loading = document.getElementById('ai-loading');
-      if(loading) {
-        loading.style.display = 'flex';
-        setTimeout(() => {
-          loading.style.display = 'none';
-          alert('AI 数据校准完成');
-        }, 1500);
-      }
-    };
+    // 原始保留：新增记忆提交逻辑
+    function saveMemory(e) {
+      e.preventDefault();
+      const title = document.getElementById('form-title').value;
+      const coordsStr = document.getElementById('form-coords').value;
+      const desc = document.getElementById('form-desc').value;
 
-    // 核心函数：查看映像模态框触发 (包含优化后的纯黑高级感占位封面)
-    window.openViewModal = function(t) {
+      const parts = coordsStr.split(',');
+      if(parts.length !== 2) {
+        alert('请输入正确的经纬度格式，用英文逗号分隔');
+        return;
+      }
+      const lat = parseFloat(parts[0].trim());
+      const lng = parseFloat(parts[1].trim());
+
+      const newMemory = {
+        id: Date.now(),
+        title: title,
+        coords: [lat, lng],
+        desc: desc,
+        photos: []
+      };
+
+      memories.unshift(newMemory);
+      renderMemories();
+      closeModal('modal-add');
+      document.getElementById('add-memory-form').reset();
+      
+      // 自动平移地图到新添加的点
+      map.panTo([lat, lng]);
+    }
+
+    // AI 票据智能扫描交互
+    function handleAIScan(event) {
+      const loading = document.getElementById('ai-loading');
+      loading.style.display = 'flex';
+      setTimeout(() => {
+        loading.style.display = 'none';
+        // 模拟解析出的真实经纬度与名称回填至原生表单中
+        document.getElementById('form-title').value = "AI 智能凭证定位记录";
+        document.getElementById('form-coords').value = "1.3000, 103.8000";
+        document.getElementById('form-desc').value = "通过票据自动转译：消费产生于中心城区，已自动校准地理足迹坐标。";
+      }, 1500);
+    }
+
+    // 核心函数：查看映像模态框触发 (将极简黑金高光封面完美包裹回原本的查看逻辑中)
+    function openViewModal(id) {
+      const item = memories.find(m => m.id === id);
+      if(!item) return;
+
       const heroArea = document.getElementById('view-hero-area');
       
-      // 核心替换逻辑：如果没有照片，渲染径向渐变黑金质感封面（去除了廉价 Emoji 图标）
-      const heroImg = t.photos && t.photos.length > 0 ? 
-        `<img src="${t.photos[0]}" class="view-hero">` : 
+      // 完美重构：判断是否有图。有图渲染真图，无图渲染无懈可击的黑金电影留白占位符
+      const heroImg = item.photos && item.photos.length > 0 ? 
+        `<img src="${item.photos[0]}" class="view-hero">` : 
         `<div class="view-hero-placeholder" style="width: 100%; height: 200px; background: radial-gradient(circle at center, #1e1b1c 0%, #121011 100%); border: 1px solid var(--border-light); border-radius: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: var(--shadow-ambient);">
            <span style="font-family: var(--font-serif); font-size: 11px; color: var(--accent-gold); letter-spacing: 3px; font-weight: 300; opacity: 0.85;">SWEET MEMORY</span>
            <span style="width: 16px; height: 1px; background: var(--accent-gold); opacity: 0.3; margin-top: 8px;"></span>
          </div>`;
 
       heroArea.innerHTML = heroImg;
-      document.getElementById('view-title').innerText = t.title || "映像详情";
+      document.getElementById('view-title').innerText = item.title;
+      document.getElementById('view-desc').innerText = item.desc;
       document.getElementById('modal-view').style.display = 'flex';
-    };
-
-    // 演示无照片时的高级感占位封面
-    function triggerViewModalDemo() {
-      window.openViewModal({
-        title: "新加坡植物园漫步",
-        photos: [] // 故意留空以激活极简占位封面效果
-      });
     }
+
+    // 页面初始化加载
+    window.onload = initMap;
   </script>
 </body>
 </html>

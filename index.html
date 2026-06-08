@@ -619,13 +619,25 @@
     }
 
     function calculateDashboardStats() {
-      document.getElementById('stat-trips').innerText = globalTrips.length;
-      const uniqueCities = new Set(globalTrips.map(t => t.place.trim().toLowerCase()));
-      document.getElementById('stat-cities').innerText = uniqueCities.size;
-      let grandTotal = 0;
-      globalTrips.forEach(t => { if (t.expenses && t.expenses.total) grandTotal += parseFloat(t.expenses.total); });
-      document.getElementById('stat-budget').innerText = '¥' + grandTotal.toLocaleString();
-    }
+  // 1. 计算城市数量
+  const uniqueCities = new Set(globalTrips.map(t => t.place.trim()));
+  
+  // 2. 计算旅程总数
+  const totalJourneys = globalTrips.length;
+  
+  // 3. 计算预算总额
+  const grandTotal = globalTrips.reduce((acc, t) => {
+    const ex = t.expenses || {};
+    const sum = (Number(ex.transport) || 0) + (Number(ex.stay) || 0) + 
+                (Number(ex.food) || 0) + (Number(ex.play) || 0) + (Number(ex.other) || 0);
+    return acc + sum;
+  }, 0);
+
+  // ⚠️ 关键步骤：把计算结果写入 HTML 元素
+  document.getElementById('stat-cities').innerText = uniqueCities.size;
+  document.getElementById('stat-trips').innerText = totalJourneys;
+  document.getElementById('stat-budget').innerText = '¥' + grandTotal.toLocaleString();
+}
 
     function togglePanel(type) {
       const panel = document.getElementById('side-panel');

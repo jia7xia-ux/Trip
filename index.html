@@ -426,6 +426,62 @@
       renderPhotoPreviews();
       // 从云端实时拉取数据
       await loadCloudData();
+
+      // 🚀 【自动搬家核心逻辑】检查是否有本地旧数据需要迁移
+      const localTrips = JSON.parse(localStorage.getItem('cwt_trips_v2')) || [];
+      const localWishes = JSON.parse(localStorage.getItem('cwt_wishes_v1')) || [];
+
+      if (localTrips.length > 0 || localWishes.length > 0) {
+        console.log(`发现本地有 ${localTrips.length} 条足迹和 ${localWishes.length} 条心愿，开始全自动同步至云端...`);
+        
+        try {
+          // 1. 批量搬运足迹
+          if (localTrips.length > 0) {
+            const tripPayloads = localTrips.map(t => ({
+              id: t.id,
+              place: t.place,
+              start_date: t.startDate, // 转换为云端下划线字段
+              end_date: t.endDate,
+              lat: parseFloat(t.lat),
+              lng: parseFloat(t.lng),
+              hotel: t.hotel || '',
+              rating: t.rating || '',
+              food: t.food || '',
+              note: t.note || '',
+              expenses: t.expenses || { transport: 0, stay: 0, food: 0, play: 0, other: 0, total: 0 },
+              photos: t.photos || []
+            }));
+            
+            const { error: tErr } = await supabase.from('cloud_trips').upsert(tripPayloads);
+            if (tErr) throw tErr;
+          }
+
+          // 2. 批量搬运心愿
+          if (localWishes.length > 0) {
+            const wishPayloads = localWishes.map(w => ({
+              id: w.id,
+              name: w.name,
+              done: w.done || false
+            }));
+            
+            const { error: wErr } = await supabase.from('cloud_wishes').upsert(wishPayloads);
+            if (wErr) throw wErr;
+          }
+
+          alert(`🎉 恭喜！全自动搬家成功！\n共同步了 ${localTrips.length} 条足迹和 ${localWishes.length} 条心愿到云端。`);
+          
+          // 3. 搬完家后清空本地缓存，防止下次重复运行
+          localStorage.removeItem('cwt_trips_v2');
+          localStorage.removeItem('cwt_wishes_v1');
+          
+          // 4. 重新刷新云端数据显示
+          await loadCloudData();
+
+        } catch (err) {
+          console.error('全自动搬家遇到问题:', err);
+          alert('搬家过程中卡住了: ' + err.message);
+        }
+      }
     };
 
     // ── 🔄 云端数据同步核心逻辑 ──

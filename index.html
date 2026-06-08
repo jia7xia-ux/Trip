@@ -426,22 +426,46 @@
 
     // ── 统计逻辑 ──
     function calculateDashboardStats() {
-      document.getElementById('stat-trips').innerText = globalTrips.length;
-      const cities = new Set(globalTrips.map(t => t.place));
-      document.getElementById('stat-cities').innerText = cities.size;
-      const total = globalTrips.reduce((sum, t) => sum + (Number(t.expenses?.total) || 0), 0);
-      document.getElementById('stat-budget').innerText = '¥' + total.toLocaleString();
-    }
+    console.log("正在计算统计数据，当前行程数:", globalTrips.length);
+    
+    // 1. 行程数 (直接读取数组长度)
+    document.getElementById('stat-trips').innerText = globalTrips.length;
+
+    // 2. 城市数 (去重逻辑)
+    const uniqueCities = new Set(globalTrips.map(t => t.place));
+    document.getElementById('stat-cities').innerText = uniqueCities.size;
+
+    // 3. 总预算 (包含JSON解析容错)
+    const total = globalTrips.reduce((sum, t) => {
+        let cost = 0;
+        try {
+            // 如果 expenses 是 JSON 字符串则解析，否则直接读取
+            const exp = typeof t.expenses === 'string' ? JSON.parse(t.expenses) : t.expenses;
+            // 确保读取的是数字
+            cost = Number(exp?.total || exp || 0);
+        } catch (e) {
+            console.error("该记录预算解析错误:", t.id);
+        }
+        return sum + cost;
+    }, 0);
+    
+    document.getElementById('stat-budget').innerText = '¥' + total.toLocaleString();
+}
 
     // ── 核心加载逻辑 ──
     async function loadCloudData() {
-      const { data: trips } = await supabase.from('cloud_trips').select('*');
-      const { data: wishes } = await supabase.from('cloud_wishes').select('*');
-      globalTrips = trips || [];
-      globalWishes = wishes || [];
-      calculateDashboardStats();
-      renderVisualMarkers();
-    }
+  const { data: trips, error } =
+    await supabase
+      .from('cloud_trips')
+      .select('*');
+
+  console.log('trips', trips);
+  console.log('error', error);
+
+  globalTrips = trips || [];
+  calculateDashboardStats();
+  renderVisualMarkers();
+}
 
     // ── 地图交互逻辑 ──
     function initVisualMap() {
@@ -522,5 +546,6 @@
     function addWish() { /* 心愿逻辑 */ }
     function handlePhotoUpload(e) { /* 图片逻辑 */ }
     function geoLookup() { /* 地理编码逻辑 */ }
+<script>  
 </body>
 </html>
